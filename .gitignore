@@ -1,0 +1,5 @@
+# Lokalne pliki offline (niepotrzebne w repo — web używa CDN)
+react.min.js
+react-dom.min.js
+babel.min.js
+tailwind.min.js
