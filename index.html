@@ -1,0 +1,1887 @@
+﻿<!DOCTYPE html>
+<html lang="pl"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harmonogram - Wykres Gantta</title>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script>
+        // Przechwytuje LsrAldL�o HTML zanim Babel przetworzy skrypt JSX
+        document.addEventListener('DOMContentLoaded', function __captureHtml() {
+            window.__originalHtmlSource = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+            document.removeEventListener('DOMContentLoaded', __captureHtml);
+        });
+    </script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Config for Custom Colors/Fonts -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar for the Gantt Area */
+        .gantt-scroll::-webkit-scrollbar {
+            height: 12px;
+            width: 12px;
+        }
+        .gantt-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 6px;
+        }
+        .gantt-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 6px;
+            border: 3px solid #f1f5f9;
+        }
+        .gantt-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        /* Striped background for "Zamknięcie torowe" */
+        .bg-striped-red {
+            background-image: repeating-linear-gradient(
+                45deg,
+                rgba(239, 68, 68, 0.9),
+                rgba(239, 68, 68, 0.9) 10px,
+                rgba(220, 38, 38, 1) 10px,
+                rgba(220, 38, 38, 1) 20px
+            );
+        }
+    </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.font-sans{font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}</style><style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.font-sans{font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}</style></head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect, useRef, useCallback } = React;
+
+        // --- ICONS ---
+        const IconEdit = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>;
+        const IconTrash = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>;
+        const IconPlus = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>;
+        const IconUp = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"></path></svg>;
+        const IconDown = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"></path></svg>;
+        const IconAlert = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>;
+        const IconZoomIn = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>;
+        const IconZoomOut = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>;
+        const IconShift = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m15 7 5 5-5 5"></path></svg>;
+        const IconPrint = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>;
+        const IconComment = () => <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>;
+        const IconUndo = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"></path><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path></svg>;
+
+        // --- EMOJI POOL ---
+        const EMOJI_POOL = [
+            '🚂','🚃','🚄','🚅','🚆','🚇','🚈','🚊','🚝','🚞','🚉','🛤️',
+            '✅','❌','✔️','⚠️','🚫','❎','🔴','🟢','🟡','🔵','⚫','⚪','🟠',
+            '🟥','🟦','🟩','🟨','🟧','🟪','🔶','🔷','🔸','🔹',
+            '🏗️','🔧','🔨','⚙️','🛠️','🧱','🪛','🔩','⛏️','🪚','🔌','🔋',
+            '🚧','⛔','🚦','🚥','🛑','🚨','⛽',
+            '👷','👷‍♀️','🦺','🧑‍🔧','🧑‍🏭','👔',
+            '📋','📌','📍','📎','📅','📆','📊','📈','📉','💼','🗒️',
+            '⭐','🌟','💫','✨','🔥','💧','🎯','🔑','💡','👍','👎',
+            '❓','❗','💬','🏆','🥇','⏰','🔔','📣','🕐','🔒','🔓',
+        ];
+
+        // --- ZNAK PICKER ---
+        // --- AI PANEL ---
+        // ── helpers ──────────────────────────────────────────────────────────
+        const WORKER_URL = 'https://gigantt-proxy.PLACEHOLDER.workers.dev'; // Cloudflare Worker proxy — ustaw po utworzeniu Workera
+        const CAT_COLORS = ['#3b82f6','#10b981','#a855f7','#f59e0b','#06b6d4','#ec4899','#84cc16','#f97316','#6366f1','#14b8a6'];
+
+        const PL_MONTHS = {
+            'sty':1,'styc':1,'stycznia':1,'january':1,'jan':1,
+            'lut':2,'luty':2,'lutego':2,'february':2,'feb':2,
+            'mar':3,'marca':3,'march':3,
+            'kwi':4,'kwie':4,'kwietnia':4,'april':4,'apr':4,
+            'maj':5,'maja':5,'may':5,
+            'cze':6,'czerw':6,'czerwca':6,'june':6,'jun':6,
+            'lip':7,'lipca':7,'july':7,'jul':7,
+            'sie':8,'sierp':8,'sierpnia':8,'august':8,'aug':8,
+            'wrz':9,'wrze':9,'września':9,'september':9,'sep':9,'sept':9,
+            'paź':10,'paz':10,'pazd':10,'października':10,'october':10,'oct':10,
+            'lis':11,'lista':11,'listopada':11,'november':11,'nov':11,
+            'gru':12,'grud':12,'grudnia':12,'december':12,'dec':12,
+        };
+
+        const parseDate = (s) => {
+            if (!s) return null;
+            s = s.trim().replace(/[–—]/g, '-');
+            // YYYY-MM-DD
+            let m = s.match(/^(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})$/);
+            if (m) return `${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+            // DD.MM.YYYY or DD-MM-YYYY
+            m = s.match(/^(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})$/);
+            if (m) return `${m[3]}-${String(m[2]).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
+            // D mon YYYY  or  D mon. YYYY
+            m = s.match(/^(\d{1,2})\s+([a-ząćęłńóśźż]+)\.?\s+(\d{4})$/i);
+            if (m) {
+                const mo = PL_MONTHS[m[2].toLowerCase().replace(/ę/g,'e').replace(/ź/g,'z').replace(/ą/g,'a').replace(/ła/g,'la')];
+                const mo2 = PL_MONTHS[m[2].toLowerCase()];
+                const month = mo || mo2;
+                if (month) return `${m[3]}-${String(month).padStart(2,'0')}-${String(m[1]).padStart(2,'0')}`;
+            }
+            return null;
+        };
+
+        const parseImportText = (text) => {
+            const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+            const tasks = [];
+            const SEP = /\t|;/;
+
+            // detect header row (TSV/CSV)
+            const firstCols = lines[0] ? lines[0].split(SEP) : [];
+            const hasTSV = firstCols.length >= 2;
+            let nameIdx = -1, startIdx = -1, endIdx = -1, catIdx = -1, closeIdx = -1;
+
+            if (hasTSV) {
+                firstCols.forEach((h, i) => {
+                    const n = h.toLowerCase().trim();
+                    if (nameIdx < 0 && /nazwa|task|zadanie|roboty|opis/.test(n)) nameIdx = i;
+                    if (startIdx < 0 && /start|od|pocz|begin|data.od/.test(n)) startIdx = i;
+                    if (endIdx < 0 && /end|do|kon|finish|data.do/.test(n)) endIdx = i;
+                    if (catIdx < 0 && /kat|obiekt|cat|type/.test(n)) catIdx = i;
+                    if (closeIdx < 0 && /zamk|clos|stan b/.test(n)) closeIdx = i;
+                });
+            }
+
+            const startLine = (hasTSV && nameIdx >= 0 && (startIdx >= 0 || endIdx >= 0)) ? 1 : 0;
+
+            for (let i = startLine; i < lines.length; i++) {
+                const line = lines[i];
+                if (!line) continue;
+
+                if (hasTSV && startLine === 1) {
+                    // structured TSV
+                    const cols = line.split(SEP).map(c => c.trim());
+                    const name = nameIdx >= 0 ? cols[nameIdx] : cols[0];
+                    const startRaw = startIdx >= 0 ? cols[startIdx] : cols[1];
+                    const endRaw   = endIdx   >= 0 ? cols[endIdx]   : cols[2];
+                    const catRaw   = catIdx   >= 0 ? cols[catIdx]   : '';
+                    const closeRaw = closeIdx >= 0 ? (cols[closeIdx]||'') : line;
+                    const start = parseDate(startRaw);
+                    const end   = parseDate(endRaw);
+                    if (!name || !start || !end) continue;
+                    const cat = (catRaw && catRaw.trim()) ? catRaw.trim() : 'Inne';
+                    const closure = /tak|yes|true|1|zamk|x/i.test(closeRaw);
+                    tasks.push({ id: Date.now() + tasks.length, name, start, end, category: cat, closure, comment: '' });
+                } else {
+                    // free-text: find two dates in line
+                    const dateRe = /(\d{1,4}[.\-/]\d{1,2}[.\-/]\d{2,4}|\d{1,2}\s+[a-ząćęłńóśźż]+\.?\s+\d{4})/gi;
+                    const dates = [...line.matchAll(dateRe)].map(m => m[0]);
+                    if (dates.length < 2) continue;
+                    const start = parseDate(dates[0]);
+                    const end   = parseDate(dates[1]);
+                    if (!start || !end) continue;
+                    // name = text before first date
+                    const nameRaw = line.substring(0, line.search(dateRe)).replace(/[-–—|;,]+$/, '').trim();
+                    if (!nameRaw) continue;
+                    const cat = 'Inne';
+                    const closure = /zamk|clos|tor/i.test(line);
+                    tasks.push({ id: Date.now() + tasks.length, name: nameRaw, start, end, category: cat, closure, comment: '' });
+                }
+            }
+            return tasks;
+        };
+        // ─────────────────────────────────────────────────────────────────────
+
+        const AiPanel = ({ isOpen, onClose, onImport }) => {
+            if (!isOpen) return null;
+            const [inputText, setInputText] = React.useState('');
+            const [preview, setPreview] = React.useState(null); // null | Task[]
+            const [step, setStep] = React.useState('input'); // input | preview | gemini | loading | error
+            const [errorMsg, setErrorMsg] = React.useState('');
+
+            const handleParse = () => {
+                if (!inputText.trim()) { setErrorMsg('Wklej dane harmonogramu.'); setStep('error_input'); return; }
+                const result = parseImportText(inputText);
+                if (result.length > 0) { setPreview(result); setStep('preview'); }
+                else { setStep('gemini'); }
+            };
+
+            const handleGemini = async () => {
+                setStep('loading');
+                const prompt = `Jesteś asystentem tworzącym harmonogramy Gantta. Na podstawie poniższych danych zwróć JSON (TYLKO JSON, bez markdown) - tablicę zadań:
+[{"name":"string","start":"YYYY-MM-DD","end":"YYYY-MM-DD","category":"string","closure":false,"comment":""}]
+category to nazwa obiektu/kategorii z danych (np. nazwa mostu, odcinka). closure=true gdy zadanie wymaga zamknięcia torowego.
+DANE:\n${inputText}`;
+                try {
+                    const resp = await fetch(
+                        WORKER_URL,
+                        { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) }
+                    );
+                    if (!resp.ok) { const e = await resp.json(); throw new Error(e?.error?.message || `HTTP ${resp.status}`); }
+                    const data = await resp.json();
+                    let raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                    raw = raw.replace(/```json/gi,'').replace(/```/g,'').trim();
+                    const parsed = JSON.parse(raw);
+                    if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('Gemini nie zwrócił listy zadań.');
+                    const newTasks = parsed.map((t, i) => ({ id: Date.now()+i, name: t.name||'Zadanie', start: t.start, end: t.end, category: t.category||'Inne', closure:!!t.closure, comment:t.comment||'' }));
+                    setPreview(newTasks); setStep('preview');
+                } catch(e) { setErrorMsg(e.message); setStep('error'); }
+            };
+
+            const handleConfirm = () => { onImport(preview); };
+            const handleBack = () => { setStep('input'); setPreview(null); setErrorMsg(''); };
+
+            return (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden max-h-[90vh]">
+                        <div className="bg-gradient-to-r from-violet-700 to-indigo-600 text-white px-6 py-4 flex justify-between items-center shrink-0">
+                            <div>
+                                <h3 className="font-bold text-lg">✨ Import harmonogramu</h3>
+                                <p className="text-violet-200 text-xs mt-0.5">Wklej tabelkę z Excela lub listę zadań z datami</p>
+                            </div>
+                            <button onClick={onClose} className="text-white/70 hover:text-white text-2xl leading-none">&times;</button>
+                        </div>
+
+                        {(step === 'input' || step === 'error_input') && (
+                            <div className="p-5 space-y-3 overflow-y-auto flex-1">
+                                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide">Twój harmonogram</label>
+                                <textarea value={inputText} onChange={e => setInputText(e.target.value)} rows={10} autoFocus
+                                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-400 outline-none resize-none font-mono"
+                                    placeholder={"Wklej tabelkę z Excela (Ctrl+C → Ctrl+V) lub wpisz po jednym zadaniu w linii:\n\nRoboty przygotowawcze\t01.01.2027\t30.05.2027\nRozbiórka nawierzchni  2 cze 2027 – 9 cze 2027  zamknięcie"}
+                                />
+                                {step === 'error_input' && <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-sm text-red-700">{errorMsg}</div>}
+                                <p className="text-xs text-slate-400">Obsługiwane formaty dat: 01.01.2027 · 2027-01-01 · 1 sty 2027</p>
+                            </div>
+                        )}
+
+                        {step === 'preview' && (
+                            <div className="p-5 overflow-y-auto flex-1 space-y-3">
+                                <p className="text-sm text-emerald-700 font-medium">✅ Znaleziono {preview.length} zadań — sprawdź czy wygląda poprawnie:</p>
+                                <div className="border border-slate-200 rounded-lg overflow-hidden text-xs">
+                                    <div className="grid grid-cols-[1fr_auto_auto] bg-slate-100 font-semibold text-slate-500 px-3 py-1.5 gap-2">
+                                        <span>Nazwa</span><span>Start</span><span>Koniec</span>
+                                    </div>
+                                    <div className="max-h-64 overflow-y-auto divide-y divide-slate-100">
+                                        {preview.map((t,i) => (
+                                            <div key={i} className="grid grid-cols-[1fr_auto_auto] px-3 py-1.5 gap-2 items-center hover:bg-slate-50">
+                                                <span className="truncate font-medium text-slate-700">{t.closure ? '🚫 ' : ''}{t.name}</span>
+                                                <span className="text-slate-500 font-mono whitespace-nowrap">{t.start}</span>
+                                                <span className="text-slate-500 font-mono whitespace-nowrap">{t.end}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <p className="text-xs text-slate-400">Czerwona flaga 🚫 = wykryto zamknięcie torowe. Wszystkie zadania można edytować po imporcie.</p>
+                            </div>
+                        )}
+
+                        {step === 'gemini' && (
+                            <div className="p-5 space-y-3 overflow-y-auto flex-1">
+                                <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-800">
+                                    <p className="font-semibold mb-1">Parser nie wykrył dat w tekście</p>
+                                    <p>Możesz spróbować z pomocą Gemini AI — przeanalizuje tekst i wyciągnie zadania automatycznie.</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {step === 'loading' && (
+                            <div className="p-10 flex flex-col items-center gap-3 text-slate-500 flex-1">
+                                <svg className="animate-spin" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" strokeOpacity="0.2"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+                                <span className="text-sm">Gemini analizuje harmonogram…</span>
+                            </div>
+                        )}
+
+                        {step === 'error' && (
+                            <div className="p-5 flex-1">
+                                <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
+                                    <p className="font-semibold">Błąd Gemini</p>
+                                    <p>{errorMsg}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="px-5 py-4 border-t border-slate-100 flex justify-between items-center shrink-0 gap-3">
+                            <div>
+                                {(step === 'preview' || step === 'gemini' || step === 'error') && (
+                                    <button onClick={handleBack} className="px-3 py-2 text-slate-500 hover:bg-slate-100 rounded-lg text-sm transition-colors">← Wróć</button>
+                                )}
+                            </div>
+                            <div className="flex gap-3">
+                                <button onClick={onClose} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm transition-colors">Anuluj</button>
+                                {(step === 'input' || step === 'error_input') && (
+                                    <button onClick={handleParse}
+                                        className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-lg text-sm font-semibold shadow transition-all">
+                                        Importuj →
+                                    </button>
+                                )}
+                                {step === 'gemini' && (
+                                    <button onClick={handleGemini}
+                                        className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-lg text-sm font-semibold shadow transition-all">
+                                        ✨ Spróbuj z Gemini
+                                    </button>
+                                )}
+                                {step === 'preview' && (
+                                    <button onClick={handleConfirm}
+                                        className="flex items-center gap-2 px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold shadow transition-all">
+                                        ✅ Zatwierdź i importuj
+                                    </button>
+                                )}
+                                {step === 'error' && (
+                                    <button onClick={handleGemini}
+                                        className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-lg text-sm font-semibold shadow transition-all">
+                                        ↻ Spróbuj ponownie
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const ZnakPicker = ({ pos, emojis, labels, pickingSlot, onSelectSlot, onSelectEmoji, onLabelChange, onClose }) => {
+            const ref = useRef(null);
+            useEffect(() => {
+                const handler = (e) => {
+                    if (ref.current && !ref.current.contains(e.target)) onClose();
+                };
+                const timer = setTimeout(() => document.addEventListener('mousedown', handler), 80);
+                return () => { clearTimeout(timer); document.removeEventListener('mousedown', handler); };
+            }, [onClose]);
+            return (
+                <div ref={ref} style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999, minWidth: '320px' }}
+                    className="bg-white shadow-2xl border border-slate-200 rounded-xl p-3">
+                    <div className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Emoji dla kolumny Znak</div>
+                    <div className="flex gap-2 mb-2">
+                        {[0, 1].map(slot => (
+                            <div key={slot} className={`flex-1 rounded-lg border-2 transition-colors ${pickingSlot === slot ? 'border-brand-500 bg-brand-50' : 'border-slate-200'}`}>
+                                <button onClick={() => onSelectSlot(slot)} className="w-full py-2 flex flex-col items-center gap-0.5">
+                                    <span className="text-2xl leading-none">{emojis[slot]}</span>
+                                    <span className="text-xs text-slate-500 mt-0.5">Stan {slot === 0 ? 'A (domyślny)' : 'B (aktywny)'}</span>
+                                </button>
+                                <div className="px-2 pb-2">
+                                    <input
+                                        type="text"
+                                        value={labels[slot]}
+                                        onClick={e => e.stopPropagation()}
+                                        onChange={e => onLabelChange(slot, e.target.value)}
+                                        placeholder="Opis w legendzie…"
+                                        className="w-full text-xs border border-slate-200 rounded px-1.5 py-1 focus:outline-none focus:ring-1 focus:ring-brand-400 bg-white"
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="text-xs text-slate-400 mb-1.5">Kliknij stan, potem emoji poniżej:</div>
+                    <div className="grid grid-cols-9 gap-0.5 max-h-48 overflow-y-auto pr-0.5">
+                        {EMOJI_POOL.map(em => (
+                            <button key={em} onClick={() => onSelectEmoji(em)}
+                                className={`text-xl p-1 rounded transition-all hover:bg-brand-50 hover:scale-110 ${
+                                    emojis[pickingSlot] === em ? 'bg-brand-100 ring-1 ring-brand-400' : ''
+                                }`}
+                                title={em}>{em}</button>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // --- PRINT MODAL ---
+        const PrintModal = ({ isOpen, onClose, onPrint }) => {
+            if (!isOpen) return null;
+            const [mode, setMode] = React.useState('gantt');
+            return (
+                <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden">
+                        <div className="bg-slate-800 text-white px-6 py-4 flex justify-between items-center">
+                            <h3 className="font-semibold text-lg flex items-center gap-2"><IconPrint /> Drukuj / Zapisz PDF</h3>
+                            <button onClick={onClose} className="text-slate-300 hover:text-white text-xl">&times;</button>
+                        </div>
+                        <div className="p-6 space-y-3">
+                            <p className="text-slate-600 text-sm mb-4">Wybierz co ma zostać wydrukowane:</p>
+                            {[['gantt', 'Tylko wykres Gantt'], ['both', 'Tabela + wykres Gantt']].map(([val, label]) => (
+                                <label key={val} className={`flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+                                    mode === val ? 'border-brand-500 bg-brand-50' : 'border-slate-200 hover:border-slate-300'
+                                }`}>
+                                    <input type="radio" name="printMode" value={val} checked={mode === val} onChange={() => setMode(val)} className="accent-brand-600 w-4 h-4" />
+                                    <span className="font-medium text-slate-700 text-sm">{label}</span>
+                                </label>
+                            ))}
+                            <div className="pt-4 flex justify-end gap-3 border-t mt-4">
+                                <button type="button" onClick={onClose} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Anuluj</button>
+                                <button type="button" onClick={() => { onPrint(mode); onClose(); }}
+                                    className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg shadow transition-colors">
+                                    <IconPrint /> Drukuj
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- INITIAL DATA ---
+        // Helper to roughly convert weeks to actual dates to make the Gantt interactive
+        const addDays = (dateStr, days) => {
+            const d = new Date(dateStr);
+            d.setDate(d.getDate() + days);
+            return d.toISOString().split('T')[0];
+        };
+        const fmtPL = (iso) => { if (!iso) return ''; const [y,m,d] = iso.split('-'); return `${d}.${m}.${y}`; };
+
+        /* HARMO1-DATA-START */
+        const initialTasks = [
+                      {
+                                "id": 1,
+                                "name": "Roboty przygotowawcze, w tym prefabrykacja konstrukcji stalowych",
+                                "category": "Most w km 72+209",
+                                "start": "2027-01-01",
+                                "end": "2027-05-30",
+                                "closure": false,
+                                "comment": "w tym prefbrykacja"
+                      },
+                      {
+                                "id": 2,
+                                "name": "Rozbiórka nawierzchni torowej",
+                                "category": "Most w km 72+209",
+                                "start": "2027-06-02",
+                                "end": "2027-06-09",
+                                "closure": true
+                      },
+                      {
+                                "id": 3,
+                                "name": "Demontaż przęseł stalowych",
+                                "category": "Most w km 72+209",
+                                "start": "2027-06-09",
+                                "end": "2027-06-23",
+                                "closure": true
+                      },
+                      {
+                                "id": 4,
+                                "name": "Rozbiórka podpór mostu",
+                                "category": "Most w km 72+209",
+                                "start": "2027-06-23",
+                                "end": "2027-07-13",
+                                "closure": true
+                      },
+                      {
+                                "id": 5,
+                                "name": "Wykonanie posadowienia",
+                                "category": "Most w km 72+209",
+                                "start": "2027-07-13",
+                                "end": "2027-08-10",
+                                "closure": true
+                      },
+                      {
+                                "id": 6,
+                                "name": "Wykonanie oczepów palowych",
+                                "category": "Most w km 72+209",
+                                "start": "2027-08-10",
+                                "end": "2027-09-08",
+                                "closure": true
+                      },
+                      {
+                                "id": 7,
+                                "name": "Wykonanie korpusów podpór",
+                                "category": "Most w km 72+209",
+                                "start": "2027-09-08",
+                                "end": "2027-10-20",
+                                "closure": true
+                      },
+                      {
+                                "id": 8,
+                                "name": "Montaż przęseł mostu",
+                                "category": "Most w km 72+209",
+                                "start": "2027-10-20",
+                                "end": "2027-11-18",
+                                "closure": true
+                      },
+                      {
+                                "id": 9,
+                                "name": "Montaż naw. oraz sieci obcych",
+                                "category": "Most w km 72+209",
+                                "start": "2027-11-18",
+                                "end": "2027-12-08",
+                                "closure": true
+                      },
+                      {
+                                "id": 10,
+                                "name": "Montaż wyposażenia",
+                                "category": "Most w km 72+209",
+                                "start": "2027-12-08",
+                                "end": "2028-01-05",
+                                "closure": false
+                      },
+                      {
+                                "id": 11,
+                                "name": "Roboty porządkowe",
+                                "category": "Most w km 72+209",
+                                "start": "2028-01-05",
+                                "end": "2028-02-03",
+                                "closure": false
+                      },
+                      {
+                                "id": 12,
+                                "name": "Roboty przygotowawcze...",
+                                "category": "Mur oporowy w km 73+090",
+                                "start": "2027-01-01",
+                                "end": "2027-05-30",
+                                "closure": false
+                      },
+                      {
+                                "id": 13,
+                                "name": "Demontaż sieci obcych",
+                                "category": "Mur oporowy w km 73+090",
+                                "start": "2027-03-04",
+                                "end": "2027-03-11",
+                                "closure": false
+                      },
+                      {
+                                "id": 14,
+                                "name": "Rozbiórka nawierzchni torowej",
+                                "category": "Mur oporowy w km 73+090",
+                                "start": "2027-06-09",
+                                "end": "2027-06-16",
+                                "closure": true
+                      },
+                      {
+                                "id": 15,
+                                "name": "Roboty ziemne (odkopanie)",
+                                "category": "Mur oporowy w km 73+090",
+                                "start": "2027-06-16",
+                                "end": "2027-06-30",
+                                "closure": true
+                      },
+                      {
+                                "id": 16,
+                                "name": "Rozbiórka korony muru",
+                                "category": "Mur oporowy w km 73+090",
+                                "start": "2027-06-30",
+                                "end": "2027-07-20",
+                                "closure": true
+                      },
+                      {
+                                "id": 17,
+                                "name": "Oczyszczenie powierzchni",
+                                "category": "Mur oporowy w km 73+090",
+                                "start": "2027-07-20",
+                                "end": "2027-08-10",
+                                "closure": true
+                      },
+                      {
+                                "id": 18,
+                                "name": "Wykonanie płaszczy/nadbudowy",
+                                "category": "Mur oporowy w km 73+090",
+                                "start": "2027-08-10",
+                                "end": "2027-10-06",
+                                "closure": true
+                      },
+                      {
+                                "id": 19,
+                                "name": "Wykonanie izolacji i odwo.",
+                                "category": "Mur oporowy w km 73+090",
+                                "start": "2027-10-06",
+                                "end": "2027-10-27",
+                                "closure": true
+                      },
+                      {
+                                "id": 20,
+                                "name": "Roboty ziemne (zasypanie)",
+                                "category": "Mur oporowy w km 73+090",
+                                "start": "2027-10-27",
+                                "end": "2027-11-18",
+                                "closure": true
+                      },
+                      {
+                                "id": 21,
+                                "name": "Montaż naw. oraz sieci",
+                                "category": "Mur oporowy w km 73+090",
+                                "start": "2027-11-18",
+                                "end": "2027-12-01",
+                                "closure": true
+                      },
+                      {
+                                "id": 22,
+                                "name": "Montaż wyposażenia",
+                                "category": "Mur oporowy w km 73+090",
+                                "start": "2027-12-01",
+                                "end": "2027-12-22",
+                                "closure": false
+                      },
+                      {
+                                "id": 23,
+                                "name": "Roboty porządkowe",
+                                "category": "Mur oporowy w km 73+090",
+                                "start": "2027-12-22",
+                                "end": "2028-01-05",
+                                "closure": false
+                      },
+                      {
+                                "id": 24,
+                                "name": "Roboty przygotowawcze, w tym prefabrykacja konstrukcji stalowych",
+                                "category": "Most nad Wartą w km 73+303",
+                                "start": "2027-01-01",
+                                "end": "2027-06-30",
+                                "closure": false,
+                                "comment": "skonsuktowane z WKS, pół roku na prefbrykację wystarczy"
+                      },
+                      {
+                                "id": 25,
+                                "name": "Rozbiórka nawierzchni torowej",
+                                "category": "Most nad Wartą w km 73+303",
+                                "start": "2027-07-02",
+                                "end": "2027-07-09",
+                                "closure": true
+                      },
+                      {
+                                "id": 26,
+                                "name": "Demontaż przęseł stalowych",
+                                "category": "Most nad Wartą w km 73+303",
+                                "start": "2027-07-09",
+                                "end": "2027-08-05",
+                                "closure": true
+                      },
+                      {
+                                "id": 27,
+                                "name": "Rozbiórka podpór mostu",
+                                "category": "Most nad Wartą w km 73+303",
+                                "start": "2027-08-05",
+                                "end": "2027-08-19",
+                                "closure": true
+                      },
+                      {
+                                "id": 28,
+                                "name": "Wykonanie posadowienia",
+                                "category": "Most nad Wartą w km 73+303",
+                                "start": "2027-08-19",
+                                "end": "2027-09-16",
+                                "closure": true
+                      },
+                      {
+                                "id": 29,
+                                "name": "Wykonanie oczepów palowych",
+                                "category": "Most nad Wartą w km 73+303",
+                                "start": "2027-09-16",
+                                "end": "2027-10-15",
+                                "closure": true
+                      },
+                      {
+                                "id": 30,
+                                "name": "Wykonanie korpusów podpór",
+                                "category": "Most nad Wartą w km 73+303",
+                                "start": "2027-10-15",
+                                "end": "2027-11-27",
+                                "closure": true
+                      },
+                      {
+                                "id": 31,
+                                "name": "Montaż przęseł mostu",
+                                "category": "Most nad Wartą w km 73+303",
+                                "start": "2027-11-27",
+                                "end": "2028-01-25",
+                                "closure": true
+                      },
+                      {
+                                "id": 32,
+                                "name": "Montaż naw. oraz sieci obcych",
+                                "category": "Most nad Wartą w km 73+303",
+                                "start": "2028-01-24",
+                                "end": "2028-02-06",
+                                "closure": true
+                      },
+                      {
+                                "id": 33,
+                                "name": "Montaż wyposażenia mostu",
+                                "category": "Most nad Wartą w km 73+303",
+                                "start": "2028-01-24",
+                                "end": "2028-02-21",
+                                "closure": false
+                      },
+                      {
+                                "id": 34,
+                                "name": "Wykonanie podpór kładki",
+                                "category": "Most nad Wartą w km 73+303",
+                                "start": "2027-08-19",
+                                "end": "2027-11-23",
+                                "closure": false
+                      },
+                      {
+                                "id": 35,
+                                "name": "Wykonanie przęseł kładki",
+                                "category": "Most nad Wartą w km 73+303",
+                                "start": "2027-08-19",
+                                "end": "2028-01-25",
+                                "closure": false
+                      },
+                      {
+                                "id": 36,
+                                "name": "Montaż wyposażenia kładki",
+                                "category": "Most nad Wartą w km 73+303",
+                                "start": "2028-01-25",
+                                "end": "2028-02-22",
+                                "closure": false
+                      },
+                      {
+                                "id": 37,
+                                "name": "Roboty porządkowe",
+                                "category": "Most nad Wartą w km 73+303",
+                                "start": "2028-02-22",
+                                "end": "2028-03-21",
+                                "closure": false
+                      }
+            ];
+        /* HARMO1-DATA-END */
+
+        // --- COMPONENTS ---
+
+        const Modal = ({ isOpen, onClose, task, onSave, tasks, categories }) => {
+            if (!isOpen) return null;
+            const defaultCat = categories && categories.length > 0 ? categories[0] : 'Inne';
+            const [formData, setFormData] = useState(task || {
+                name: '', start: '', end: '', category: defaultCat, closure: false
+            });
+            const [insertAfterRow, setInsertAfterRow] = useState(tasks ? tasks.length : 0);
+            const [newCatInput, setNewCatInput] = useState('');
+            const [showNewCat, setShowNewCat] = useState(false);
+
+            useEffect(() => {
+                if (task) setFormData(task);
+                else {
+                    setFormData({ name: '', start: '', end: '', category: defaultCat, closure: false });
+                    setInsertAfterRow(tasks ? tasks.length : 0);
+                    setShowNewCat(false); setNewCatInput('');
+                }
+            }, [task, tasks, defaultCat]);
+
+            const handleChange = (e) => {
+                const { name, value, type, checked } = e.target;
+                setFormData(prev => ({
+                    ...prev,
+                    [name]: type === 'checkbox' ? checked : value
+                }));
+            };
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                onSave(formData, task ? null : Number(insertAfterRow));
+            };
+
+            return (
+                <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
+                        <div className="bg-slate-800 text-white px-6 py-4 flex justify-between items-center">
+                            <h3 className="font-semibold text-lg">{task ? 'Edytuj Zadanie' : 'Dodaj Nowe Zadanie'}</h3>
+                            <button onClick={onClose} className="text-slate-300 hover:text-white">&times;</button>
+                        </div>
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Nazwa zadania</label>
+                                <input required type="text" name="name" value={formData.name} onChange={handleChange} 
+                                    className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 outline-none" 
+                                    placeholder="np. Roboty przygotowawcze"/>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Data startu</label>
+                                    <input required type="date" name="start" value={formData.start} onChange={handleChange} 
+                                        className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 outline-none"/>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Data ko&#324;ca</label>
+                                    <input required type="date" name="end" value={formData.end} onChange={handleChange} 
+                                        className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 outline-none"/>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Kategoria / Obiekt</label>
+                                {!showNewCat ? (
+                                    <div className="flex gap-2">
+                                        <select name="category" value={formData.category} onChange={handleChange}
+                                            className="flex-1 border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 outline-none">
+                                            {(categories && categories.length > 0 ? categories : ['Inne']).map(c => (
+                                                <option key={c} value={c}>{c}</option>
+                                            ))}
+                                        </select>
+                                        <button type="button" onClick={() => setShowNewCat(true)}
+                                            className="px-3 py-2 border border-dashed border-slate-300 text-slate-500 hover:border-brand-400 hover:text-brand-600 rounded-lg text-sm transition-colors whitespace-nowrap">+ Nowa</button>
+                                    </div>
+                                ) : (
+                                    <div className="flex gap-2">
+                                        <input type="text" value={newCatInput} onChange={e => setNewCatInput(e.target.value)}
+                                            placeholder="Wpisz nazwę kategorii…"
+                                            className="flex-1 border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 outline-none text-sm" autoFocus />
+                                        <button type="button" onClick={() => { if (newCatInput.trim()) { handleChange({target:{name:'category',value:newCatInput.trim()}}); setShowNewCat(false); } }}
+                                            className="px-3 py-2 bg-brand-500 text-white rounded-lg text-sm hover:bg-brand-600 transition-colors">OK</button>
+                                        <button type="button" onClick={() => { setShowNewCat(false); setNewCatInput(''); }}
+                                            className="px-3 py-2 text-slate-500 hover:bg-slate-100 rounded-lg text-sm transition-colors">×</button>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex items-center mt-4">
+                                <input type="checkbox" id="closure" name="closure" checked={formData.closure} onChange={handleChange} 
+                                    className="w-4 h-4 text-red-600 border-slate-300 rounded focus:ring-red-500 cursor-pointer"/>
+                                <label htmlFor="closure" className="ml-2 block text-sm font-medium text-slate-700 cursor-pointer">
+                                    Stan B aktywny (kolumna Znak)
+                                </label>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Komentarz</label>
+                                <textarea name="comment" value={formData.comment || ''} onChange={handleChange} rows={2}
+                                    className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 outline-none resize-none text-sm"
+                                    placeholder="Opcjonalny komentarz do zadania…"/>
+                            </div>
+                            {!task && tasks && tasks.length > 0 && (
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Wstaw po wierszu</label>
+                                    <select value={insertAfterRow} onChange={e => setInsertAfterRow(e.target.value)}
+                                        className="w-full border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 outline-none text-sm">
+                                        <option value={0}>--- na początku listy ---</option>
+                                        {tasks.map((t, i) => (
+                                            <option key={t.id} value={i + 1}>{i + 1}. {t.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+                            <div className="pt-4 flex justify-end gap-3 border-t mt-6">
+                                <button type="button" onClick={onClose} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Anuluj</button>
+                                <button type="submit" className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg shadow transition-colors">Zapisz</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [tasks, setTasks] = useState(() => {
+                try {
+                    const saved = localStorage.getItem('harmo1_tasks');
+                    return saved ? JSON.parse(saved) : initialTasks;
+                } catch { return initialTasks; }
+            });
+            const [isModalOpen, setModalOpen] = useState(false);
+            const [editingTask, setEditingTask] = useState(null);
+            const [isAiPanelOpen, setAiPanelOpen] = useState(false);
+            const loadHtmlRef = useRef(null);
+            const categories = useMemo(() => [...new Set(tasks.map(t => t.category).filter(Boolean))], [tasks]);
+            const getCatColor = useCallback((cat) => {
+                const idx = categories.indexOf(cat);
+                return idx >= 0 ? CAT_COLORS[idx % CAT_COLORS.length] : '#64748b';
+            }, [categories]);
+            const [openMenuId, setOpenMenuId] = useState(null);
+            useEffect(() => {
+                if (openMenuId === null) return;
+                const close = () => setOpenMenuId(null);
+                document.addEventListener('click', close);
+                return () => document.removeEventListener('click', close);
+            }, [openMenuId]);
+            const [likedGiGantt, setLikedGiGantt] = useState(() => { try { return !!localStorage.getItem('gigantt_liked'); } catch { return false; } });
+            const [showDonateMsg, setShowDonateMsg] = useState(false);
+
+            const handleLike = () => {
+                if (!likedGiGantt) { setLikedGiGantt(true); try { localStorage.setItem('gigantt_liked', '1'); } catch {} }
+                setShowDonateMsg(true);
+            };
+
+            const handleAiImport = (newTasks) => {
+                pushHistory(tasks);
+                setTasks(newTasks);
+                setAiPanelOpen(false);
+            };
+
+            const handleLoadHtml = (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                e.target.value = '';
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        const html = ev.target.result;
+                        const m = html.match(/\/\* HARMO1-DATA-START \*\/[\s\S]*?const initialTasks = (\[[\s\S]*?\]);[\s\S]*?\/\* HARMO1-DATA-END \*\//);
+                        if (!m) { alert('Nie znaleziono danych harmonogramu w tym pliku HTML.\nUpewnij si\u0119, \u017ce to plik zapisany przez giGantt.'); return; }
+                        const loaded = JSON.parse(m[1]);
+                        if (!Array.isArray(loaded) || loaded.length === 0) { alert('Plik zawiera pusty harmonogram.'); return; }
+                        const normalized = loaded.map((t, i) => ({
+                            id: t.id || Date.now() + i,
+                            name: t.name || 'Zadanie',
+                            start: t.start,
+                            end: t.end,
+                            category: t.category || 'Brak',
+                            closure: !!t.closure,
+                            comment: t.comment || ''
+                        }));
+                        if (!window.confirm(`Wczyta\u0107 ${normalized.length} zada\u0144 z pliku "${file.name}"?\nAktualne dane zostan\u0105 zast\u0105pione (mo\u017cna cofn\u0105\u0107 Cofnij).`)) return;
+                        pushHistory(tasks);
+                        setTasks(normalized);
+                    } catch(err) { alert('B\u0142\u0105d odczytu pliku: ' + err.message); }
+                };
+                reader.readAsText(file, 'utf-8');
+            };
+
+            const [pixelsPerDay, setPixelsPerDay] = useState(2);
+            const [rowHeight, setRowHeight] = useState(40); // px, default = h-14 = 56px
+            const [syncRows, setSyncRows] = useState(true);
+            const [showBarDates, setShowBarDates] = useState(false);
+            const [selectedIds, setSelectedIds] = useState(new Set());
+            const [leftPanelWidth, setLeftPanelWidth] = useState(460);
+            const leftPanelRef = useRef(null);
+
+            const handlePanelResizeMouseDown = (e) => {
+                e.preventDefault();
+                const startX = e.clientX;
+                const startW = leftPanelRef.current ? leftPanelRef.current.offsetWidth : leftPanelWidth;
+                const onMove = (ev) => {
+                    const newW = Math.max(280, Math.min(900, startW + ev.clientX - startX));
+                    setLeftPanelWidth(newW);
+                };
+                const onUp = () => {
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                };
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+            };
+
+            const listScrollRef = useRef(null);
+            const ganttScrollRef = useRef(null);
+            const isSyncingScroll = useRef(false);
+            const dragItem = useRef(null);
+            const dragOverItem = useRef(null);
+            const [dragOverIndex, setDragOverIndex] = useState(null);
+            const [history, setHistory] = useState([]);
+            const pushHistory = useCallback((snapshot) => { setHistory(h => [...h.slice(-29), snapshot]); }, []);
+            const handleUndo = () => {
+                setHistory(h => {
+                    if (h.length === 0) return h;
+                    setTasks(h[h.length - 1]);
+                    return h.slice(0, -1);
+                });
+            };
+
+            const [lasso, setLasso] = useState(null);
+            const lassoRef = useRef(null);
+            const ganttRowsRef = useRef(null);
+
+            const [znakEmojis, setZnakEmojis] = useState(['🚂', '🚫']);
+            const [znakLabels, setZnakLabels] = useState(['Stan A', 'Stan B']);
+            const [znakPickerOpen, setZnakPickerOpen] = useState(false);
+            const [znakPickingSlot, setZnakPickingSlot] = useState(0);
+            const [znakPickerPos, setZnakPickerPos] = useState({ top: 60, left: 0 });
+            const znakHeaderRef = useRef(null);
+            const handleZnakHeaderClick = () => {
+                if (znakHeaderRef.current) {
+                    const r = znakHeaderRef.current.getBoundingClientRect();
+                    setZnakPickerPos({ top: r.bottom + 6, left: Math.max(4, r.left - 120) });
+                }
+                setZnakPickerOpen(v => !v);
+            };
+            const handleZnakEmojiSelect = (em) => {
+                setZnakEmojis(prev => { const n = [...prev]; n[znakPickingSlot] = em; return n; });
+            };
+            const handleZnakLabelChange = (slot, val) => {
+                setZnakLabels(prev => { const n = [...prev]; n[slot] = val; return n; });
+            };
+
+            useEffect(() => {
+                try { localStorage.setItem('harmo1_tasks', JSON.stringify(tasks)); } catch {}
+            }, [tasks]);
+
+            const handleDragStart = (index) => { dragItem.current = index; };
+            const handleDragEnter = (index) => { dragOverItem.current = index; setDragOverIndex(index); };
+            const handleDragEnd = () => {
+                if (dragItem.current === null || dragOverItem.current === null || dragItem.current === dragOverItem.current) {
+                    dragItem.current = null; dragOverItem.current = null; setDragOverIndex(null); return;
+                }
+                const newTasks = [...tasks];
+                const [removed] = newTasks.splice(dragItem.current, 1);
+                newTasks.splice(dragOverItem.current, 0, removed);
+                pushHistory(tasks);
+                setTasks(newTasks);
+                dragItem.current = null; dragOverItem.current = null; setDragOverIndex(null);
+            };
+
+            const handleListScroll = useCallback(() => {
+                if (!syncRows || isSyncingScroll.current) return;
+                isSyncingScroll.current = true;
+                if (ganttScrollRef.current) ganttScrollRef.current.scrollTop = listScrollRef.current.scrollTop;
+                isSyncingScroll.current = false;
+            }, [syncRows]);
+
+            const handleGanttScroll = useCallback(() => {
+                if (!syncRows || isSyncingScroll.current) return;
+                isSyncingScroll.current = true;
+                if (listScrollRef.current) listScrollRef.current.scrollTop = ganttScrollRef.current.scrollTop;
+                isSyncingScroll.current = false;
+            }, [syncRows]);
+            const [shiftDays, setShiftDays] = useState(7);
+            const [shiftTarget, setShiftTarget] = useState('both');
+            const [sliderOffset, setSliderOffset] = useState(0);
+            const [editingBarDate, setEditingBarDate] = useState(null); // {id, field:'start'|'end'}
+
+            const PIXELS_PER_DAY = pixelsPerDay;
+
+            const toggleSelect = (id) => {
+                setSelectedIds(prev => {
+                    const next = new Set(prev);
+                    if (next.has(id)) next.delete(id); else next.add(id);
+                    return next;
+                });
+            };
+
+            const toggleSelectAll = () => {
+                if (selectedIds.size === tasks.length) setSelectedIds(new Set());
+                else setSelectedIds(new Set(tasks.map(t => t.id)));
+            };
+
+            const handleShiftDates = () => {
+                const days = parseInt(shiftDays, 10);
+                if (isNaN(days) || days === 0) return;
+                pushHistory(tasks);
+                setTasks(tasks.map(t => {
+                    if (!selectedIds.has(t.id)) return t;
+                    return {
+                        ...t,
+                        start: shiftTarget !== 'end'   ? addDays(t.start, days) : t.start,
+                        end:   shiftTarget !== 'start' ? addDays(t.end,   days) : t.end,
+                    };
+                }));
+            };
+
+            const selectedDateRange = useMemo(() => {
+                if (selectedIds.size === 0) return null;
+                const sel = tasks.filter(t => selectedIds.has(t.id));
+                if (sel.length === 0) return null;
+                const starts = sel.map(t => t.start).sort();
+                const ends = sel.map(t => t.end).sort();
+                return { minStart: starts[0], maxEnd: ends[ends.length - 1] };
+            }, [tasks, selectedIds]);
+
+            const handleSliderCommit = useCallback(() => {
+                if (sliderOffset === 0) return;
+                pushHistory(tasks);
+                setTasks(tasks.map(t => {
+                    if (!selectedIds.has(t.id)) return t;
+                    return {
+                        ...t,
+                        start: shiftTarget !== 'end'   ? addDays(t.start, sliderOffset) : t.start,
+                        end:   shiftTarget !== 'start' ? addDays(t.end,   sliderOffset) : t.end,
+                    };
+                }));
+                setSliderOffset(0);
+            }, [sliderOffset, tasks, selectedIds, shiftTarget]);
+
+            // Calculate overall bounds
+            const timeline = useMemo(() => {
+                if (tasks.length === 0) return { start: new Date(), end: new Date(), days: 0, months: [] };
+                
+                let minDate = new Date(tasks[0].start);
+                let maxDate = new Date(tasks[0].end);
+
+                tasks.forEach(t => {
+                    const s = new Date(t.start);
+                    const e = new Date(t.end);
+                    if (s < minDate) minDate = s;
+                    if (e > maxDate) maxDate = e;
+                });
+
+                // Add padding
+                minDate.setDate(minDate.getDate() - 15);
+                maxDate.setDate(maxDate.getDate() + 30);
+
+                const totalDays = Math.ceil((maxDate - minDate) / (1000 * 60 * 60 * 24));
+                
+                // Generate month markers
+                const months = [];
+                let current = new Date(minDate);
+                current.setDate(1); // Start at first of the month
+                
+                while (current <= maxDate) {
+                    months.push({
+                        label: current.toLocaleDateString('pl-PL', { month: 'short', year: 'numeric' }),
+                        offsetDays: Math.ceil((current - minDate) / (1000 * 60 * 60 * 24))
+                    });
+                    current.setMonth(current.getMonth() + 1);
+                }
+
+                return { minDate, maxDate, totalDays, months };
+            }, [tasks]);
+
+            // Handlers
+            const handleAddTask = () => {
+                setEditingTask(null);
+                setModalOpen(true);
+            };
+
+            const handleEditTask = (task) => {
+                setEditingTask(task);
+                setModalOpen(true);
+            };
+
+            const handleDeleteTask = (id) => {
+                if(confirm("Czy na pewno chcesz usunąć to zadanie?")) {
+                    pushHistory(tasks);
+                    setTasks(tasks.filter(t => t.id !== id));
+                }
+            };
+
+            const handleDeleteSelected = () => {
+                if (selectedIds.size === 0) return;
+                if (!confirm(`Czy na pewno usunąć ${selectedIds.size} zaznaczone${selectedIds.size === 1 ? ' zadanie' : selectedIds.size < 5 ? ' zadania' : ' zadań'}?`)) return;
+                pushHistory(tasks);
+                setTasks(tasks.filter(t => !selectedIds.has(t.id)));
+                setSelectedIds(new Set());
+            };
+
+            const handleSaveTask = (taskData, insertAfterIndex) => {
+                pushHistory(tasks);
+                if (taskData.id) {
+                    setTasks(tasks.map(t => t.id === taskData.id ? taskData : t));
+                } else {
+                    const newTask = { ...taskData, id: Date.now() };
+                    const newTasks = [...tasks];
+                    const pos = (insertAfterIndex == null) ? newTasks.length : Math.min(insertAfterIndex, newTasks.length);
+                    newTasks.splice(pos, 0, newTask);
+                    setTasks(newTasks);
+                }
+                setModalOpen(false);
+            };
+
+            const handlePrint = (mode) => {
+                const ppd = PIXELS_PER_DAY;
+                const rh = rowHeight;
+                const totalW = timeline.totalDays * ppd;
+
+                const monthsHtml = timeline.months.map(m =>
+                    `<div style="position:absolute;top:0;bottom:0;left:${m.offsetDays*ppd}px;border-left:1px solid #cbd5e1;padding-left:4px;padding-top:10px;font-size:10px;font-weight:600;color:#64748b;white-space:nowrap">${m.label}</div>`
+                ).join('');
+
+                const gridHtml = timeline.months.map((m,i) =>
+                    `<div key="g${i}" style="position:absolute;top:0;bottom:0;left:${m.offsetDays*ppd}px;border-left:1px solid #e2e8f0;pointer-events:none"></div>`
+                ).join('');
+
+                const colorMap = (task) => {
+                    if (task.closure) return '#ef4444';
+                    const cats = [...new Set(tasks.map(t=>t.category).filter(Boolean))];
+                    const idx = cats.indexOf(task.category);
+                    return idx >= 0 ? CAT_COLORS[idx % CAT_COLORS.length] : '#64748b';
+                };
+
+                const barsHtml = tasks.map(task => {
+                    const so = Math.ceil((new Date(task.start) - timeline.minDate) / 86400000);
+                    const dur = Math.ceil((new Date(task.end) - new Date(task.start)) / 86400000);
+                    const bw = Math.max(dur * ppd, 4);
+                    const bh = Math.max(rh - 10, 14);
+                    const bt = Math.floor((rh - bh) / 2);
+                    const bg = colorMap(task);
+                    const stripe = task.closure ? `background:repeating-linear-gradient(45deg,rgba(239,68,68,0.85),rgba(239,68,68,0.85) 8px,rgba(220,38,38,1) 8px,rgba(220,38,38,1) 16px);` : `background:${bg};`;
+                    return `<div style="height:${rh}px;border-bottom:1px solid #f1f5f9;position:relative">
+                        <div style="position:absolute;left:${so*ppd}px;top:${bt}px;width:${bw}px;height:${bh}px;${stripe}border-radius:4px;border:1px solid rgba(0,0,0,0.15)"></div>
+                        <div style="position:absolute;left:${so*ppd+bw+4}px;top:${bt}px;height:${bh}px;line-height:${bh}px;font-size:${Math.max(8,Math.min(12,Math.round(rh/5)))}px;color:#334155;font-weight:500;white-space:nowrap">${task.name}</div>
+                    </div>`;
+                }).join('');
+
+                const tableHtml = mode === 'both' ? `
+                <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:16px">
+                    <thead><tr style="background:#f1f5f9">
+                        <th style="border:1px solid #e2e8f0;padding:4px 8px;text-align:left">Obiekt</th>
+                        <th style="border:1px solid #e2e8f0;padding:4px 8px;text-align:left">Nazwa zadania</th>
+                        <th style="border:1px solid #e2e8f0;padding:4px 8px">Start</th>
+                        <th style="border:1px solid #e2e8f0;padding:4px 8px">Koniec</th>
+                        <th style="border:1px solid #e2e8f0;padding:4px 8px">Tyg.</th>
+                        <th style="border:1px solid #e2e8f0;padding:4px 8px">Zam.</th>
+                    </tr></thead>
+                    <tbody>${tasks.map(t => {
+                        const dur = Math.round(Math.ceil((new Date(t.end)-new Date(t.start))/86400000)/7);
+                        return `<tr><td style="border:1px solid #e2e8f0;padding:3px 8px">${t.category}</td>
+                            <td style="border:1px solid #e2e8f0;padding:3px 8px">${t.name}</td>
+                            <td style="border:1px solid #e2e8f0;padding:3px 8px;text-align:center">${t.start}</td>
+                            <td style="border:1px solid #e2e8f0;padding:3px 8px;text-align:center">${t.end}</td>
+                            <td style="border:1px solid #e2e8f0;padding:3px 8px;text-align:center">${dur}</td>
+                            <td style="border:1px solid #e2e8f0;padding:3px 8px;text-align:center">${t.closure ? znakEmojis[1] : znakEmojis[0]}</td>
+                        </tr>`;
+                    }).join('')}</tbody>
+                </table>` : '';
+
+                const legendHtml = (() => {
+                    const cats = [...new Set(tasks.map(t=>t.category).filter(Boolean))];
+                    const catItems = cats.map((c,i) => `<span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:20px;height:14px;background:${CAT_COLORS[i%CAT_COLORS.length]};border-radius:3px;border:1px solid rgba(0,0,0,0.15)"></span>${c}</span>`).join('');
+                    return `<div style="display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;margin-bottom:10px;padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;background:#f8fafc;font-size:11px;font-family:sans-serif">
+                    <span style="font-weight:700;color:#334155;margin-right:4px">Legenda:</span>
+                    ${catItems}
+                    <span style="display:flex;align-items:center;gap:5px"><span style="display:inline-block;width:20px;height:14px;background:repeating-linear-gradient(45deg,rgba(239,68,68,0.85),rgba(239,68,68,0.85) 5px,rgba(220,38,38,1) 5px,rgba(220,38,38,1) 10px);border-radius:3px;border:1px solid rgba(0,0,0,0.15)"></span>Zamkni&#281;cie torowe</span>
+                    </div>`;
+                })();
+
+                const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+                <title>Harmonogram</title>
+                <style>body{font-family:sans-serif;margin:8mm}h2{margin:0 0 8px}@media print{@page{size:landscape;margin:8mm}body{margin:0}}</style>
+                </head><body>
+                <h2>Harmonogram — Modernizacja linii kolejowej nr 367</h2>
+                ${legendHtml}
+                <div id="pw" style="overflow:visible">
+                <div style="width:${totalW}px;position:relative">
+                    <div style="height:32px;background:#f1f5f9;border-bottom:1px solid #cbd5e1;position:relative">${monthsHtml}</div>
+                    <div style="position:relative">${gridHtml}${barsHtml}</div>
+                </div></div>
+                <script>window.onload=function(){
+                    var pw=document.getElementById('pw');
+                    var cw=pw.scrollWidth;
+                    var scale=Math.min(1,(window.innerWidth-40)/cw);
+                    if(scale<1){document.documentElement.style.zoom=scale;}
+                    window.print();
+                    window.onafterprint=function(){window.close();};
+                }<\/script>
+                </body></html>`;
+
+                const w = window.open('', '_blank', 'width=1200,height=800');
+                w.document.write(html);
+                w.document.close();
+            };
+            const handleSaveFile = () => {
+                try {
+                    const src = window.__originalHtmlSource;
+                    if (!src) { alert('Nie udaL�o się pobrać LsrAldL�a HTML. OdL�wieLL stronę i sprAlbuj ponownie.'); return; }
+                    const tasksJson = JSON.stringify(tasks, null, 12)
+                        .replace(/^/mg, '            ').trimStart();
+                    const updated = src.replace(
+                        /\/\* HARMO1-DATA-START \*\/[\s\S]*?\/\* HARMO1-DATA-END \*\//,
+                        `/* HARMO1-DATA-START */\n        const initialTasks = ${tasksJson};\n        /* HARMO1-DATA-END */`
+                    );
+                    if (updated === src) {
+                        alert('Nie udaL�o się zlokalizować znacznikAlw danych. SprAlbuj ponownie po odL�wieLLeniu strony.');
+                        return;
+                    }
+                    const blob = new Blob([updated], {type: 'text/html;charset=utf-8'});
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'harmo1.html';
+                    a.click();
+                    URL.revokeObjectURL(a.href);
+                } catch(e) {
+                    alert('BL�ąd zapisu: ' + e.message);
+                }
+            };
+
+            const handleExportText = () => {
+                const today = new Date().toISOString().slice(0,10);
+                const header = `# Harmonogram giGantt — eksport ${today} (${tasks.length} zada\u0144)\n# Wklej ten tekst do panelu "\u2728 AI Import" aby wczyta\u0107 dane z powrotem.\n# Format: Nazwa\tStart\tKoniec\tKategoria\tZamkni\u0119cie\tKomentarz`;
+                const cols = 'Nazwa\tStart\tKoniec\tKategoria\tZamkni\u0119cie\tKomentarz';
+                const rows = tasks.map(t =>
+                    [t.name, t.start, t.end, t.category, t.closure ? 'tak' : 'nie', t.comment || ''].join('\t')
+                );
+                const text = [header, cols, ...rows].join('\n');
+                try {
+                    const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `harmonogram_${today}.txt`;
+                    a.click();
+                    URL.revokeObjectURL(a.href);
+                } catch(e) { alert('B\u0142\u0105d eksportu: ' + e.message); }
+            };
+
+            const moveTask = (index, direction) => {
+                if ((direction === -1 && index === 0) || (direction === 1 && index === tasks.length - 1)) return;
+                pushHistory(tasks);
+                const newTasks = [...tasks];
+                const temp = newTasks[index];
+                newTasks[index] = newTasks[index + direction];
+                newTasks[index + direction] = temp;
+                setTasks(newTasks);
+            };
+
+            const handleGanttMouseDown = (e) => {
+                if (e.button !== 0) return;
+                if (e.target.closest('[data-bar]')) return;
+                e.preventDefault();
+                const rowsEl = ganttRowsRef.current;
+                const getPos = (ev) => {
+                    const r = rowsEl.getBoundingClientRect();
+                    return { x: ev.clientX - r.left, y: ev.clientY - r.top };
+                };
+                const start = getPos(e);
+                const initial = { x1: start.x, y1: start.y, x2: start.x, y2: start.y };
+                lassoRef.current = initial;
+                setLasso(initial);
+                const onMove = (ev) => {
+                    const p = getPos(ev);
+                    const next = { x1: start.x, y1: start.y, x2: p.x, y2: p.y };
+                    lassoRef.current = next;
+                    setLasso(next);
+                };
+                const onUp = (ev) => {
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                    document.body.style.userSelect = '';
+                    const L = lassoRef.current;
+                    lassoRef.current = null;
+                    setLasso(null);
+                    if (!L) return;
+                    const selX1 = Math.min(L.x1, L.x2), selX2 = Math.max(L.x1, L.x2);
+                    const selY1 = Math.min(L.y1, L.y2), selY2 = Math.max(L.y1, L.y2);
+                    if (selX2 - selX1 < 5 && selY2 - selY1 < 5) return;
+                    const captured_tasks = tasks;
+                    const captured_ppd = PIXELS_PER_DAY;
+                    const captured_rh = rowHeight;
+                    const captured_minDate = timeline.minDate;
+                    const newSel = new Set();
+                    captured_tasks.forEach((task, i) => {
+                        const rowY1 = i * captured_rh, rowY2 = rowY1 + captured_rh;
+                        const so = Math.ceil((new Date(task.start) - captured_minDate) / 86400000);
+                        const dur = Math.ceil((new Date(task.end) - new Date(task.start)) / 86400000);
+                        const bL = so * captured_ppd, bR = bL + Math.max(dur * captured_ppd, 4);
+                        if (rowY2 > selY1 && rowY1 < selY2 && bR > selX1 && bL < selX2)
+                            newSel.add(task.id);
+                    });
+                    if (ev.shiftKey) setSelectedIds(prev => new Set([...prev, ...newSel]));
+                    else setSelectedIds(newSel);
+                };
+                document.body.style.userSelect = 'none';
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col h-screen overflow-hidden">
+                    {/* Header */}
+                    <header className="bg-slate-900 text-white p-4 shadow-md z-10 shrink-0">
+                        <div className="max-w-full mx-auto flex items-center gap-2 flex-wrap">
+                            <div className="mr-2">
+                                <h1 className="text-xl font-bold leading-tight">Harmonogram</h1>
+                                <p className="text-slate-400 text-xs">Modernizacja linii kolejowej nr 367</p>
+                            </div>
+                            {/* Scale control */}
+                            <div className="flex items-center gap-2 bg-slate-800 rounded-lg px-3 py-1.5 flex-wrap">
+                                <span className="text-slate-400 text-xs font-medium whitespace-nowrap">Skala</span>
+                                <div className="flex items-center gap-1">
+                                    <span className="text-slate-500 text-xs">↔</span>
+                                    <button onClick={() => setPixelsPerDay(v => Math.max(1, v - 1))} disabled={pixelsPerDay <= 1}
+                                        className="flex items-center justify-center w-5 h-5 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-30 text-white transition-colors"
+                                    ><IconZoomOut /></button>
+                                    <input type="range" min="1" max="12" step="1" value={pixelsPerDay}
+                                        onChange={e => setPixelsPerDay(Number(e.target.value))}
+                                        className="w-20 accent-brand-500 cursor-pointer" title={`${pixelsPerDay} px/dzień`}
+                                    />
+                                    <button onClick={() => setPixelsPerDay(v => Math.min(12, v + 1))} disabled={pixelsPerDay >= 12}
+                                        className="flex items-center justify-center w-5 h-5 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-30 text-white transition-colors"
+                                    ><IconZoomIn /></button>
+                                    <span className="text-slate-400 text-xs w-10">{pixelsPerDay}px/d</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <span className="text-slate-500 text-xs">↕</span>
+                                    <button onClick={() => setRowHeight(v => Math.max(28, v - 4))} disabled={rowHeight <= 28}
+                                        className="flex items-center justify-center w-5 h-5 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-30 text-white transition-colors"
+                                    ><IconZoomOut /></button>
+                                    <input type="range" min="28" max="96" step="4" value={rowHeight}
+                                        onChange={e => setRowHeight(Number(e.target.value))}
+                                        className="w-20 accent-brand-500 cursor-pointer" title={`${rowHeight}px wysokość wiersza`}
+                                    />
+                                    <button onClick={() => setRowHeight(v => Math.min(96, v + 4))} disabled={rowHeight >= 96}
+                                        className="flex items-center justify-center w-5 h-5 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-30 text-white transition-colors"
+                                    ><IconZoomIn /></button>
+                                    <span className="text-slate-400 text-xs w-10">{rowHeight}px</span>
+                                </div>
+                                <button
+                                    onClick={() => setSyncRows(v => !v)}
+                                    className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium transition-colors whitespace-nowrap ${syncRows ? 'bg-brand-500 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}
+                                    title="Synchronizuj wysokość wierszy tabeli z wykresem"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M21 8V5a2 2 0 0 0-2-2h-3"></path><path d="M3 16v3a2 2 0 0 0 2 2h3"></path><path d="M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+                                    Sync
+                                </button>
+                                <button
+                                    onClick={() => setShowBarDates(v => !v)}
+                                    className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium transition-colors whitespace-nowrap ${showBarDates ? 'bg-brand-500 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}
+                                    title="Pokaż / ukryj daty na paskach"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                    Daty
+                                </button>
+                            </div>
+                            <div className="flex items-center gap-1 ml-1">
+                                <button onClick={handleAddTask}
+                                    className="flex items-center gap-1 px-2.5 py-1 bg-brand-500 hover:bg-brand-600 text-white rounded-md text-xs font-medium transition-colors shadow-sm whitespace-nowrap"
+                                ><IconPlus /> Dodaj</button>
+                                <button onClick={handleUndo} disabled={history.length === 0}
+                                    className="flex items-center gap-1 px-2.5 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed text-white rounded-md text-xs font-medium transition-colors shadow-sm whitespace-nowrap"
+                                    title="Cofnij ostatnią zmianę"
+                                ><IconUndo /> Cofnij</button>
+                                <button onClick={() => setAiPanelOpen(true)}
+                                    className="flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-md text-xs font-semibold transition-all shadow-sm whitespace-nowrap"
+                                    title="Import / generuj z AI"
+                                >✨ AI Import</button>
+                                <button onClick={() => loadHtmlRef.current?.click()}
+                                    className="flex items-center gap-1 px-2.5 py-1 bg-slate-500 hover:bg-slate-400 text-white rounded-md text-xs font-medium transition-all shadow-sm whitespace-nowrap"
+                                    title="Wczytaj dane z pliku HTML giGantt"
+                                >📂 Wczytaj</button>
+                                <input ref={loadHtmlRef} type="file" accept=".html,.htm" className="hidden" onChange={handleLoadHtml} />
+                                <button onClick={handleSaveFile}
+                                    className="flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-xs font-medium transition-colors shadow-sm whitespace-nowrap"
+                                    title="Pobierz plik HTML z aktualnymi danymi"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    Zapisz
+                                </button>
+                                <button onClick={handleExportText}
+                                    className="flex items-center gap-1 px-2.5 py-1 bg-slate-500 hover:bg-slate-400 text-white rounded-md text-xs font-medium transition-all shadow-sm whitespace-nowrap"
+                                    title="Eksportuj do pliku .txt"
+                                >📋 Eksportuj</button>
+                                <button onClick={() => handlePrint('gantt')}
+                                    className="flex items-center gap-1 px-2.5 py-1 bg-slate-600 hover:bg-slate-500 text-white rounded-md text-xs font-medium transition-colors shadow-sm whitespace-nowrap"
+                                ><IconPrint /> Drukuj</button>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Main Gantt Area */}
+                    <main className="flex-1 overflow-hidden flex flex-col p-4">
+
+                        {/* Shift Dates Toolbar */}
+                        {selectedIds.size > 0 && (
+                            <div className="mb-3 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 flex items-center gap-2 flex-wrap shrink-0">
+
+                                {/* Left date pill */}
+                                {selectedDateRange && (
+                                    <div className="flex flex-col items-center bg-white border border-amber-300 rounded-lg px-2.5 py-0.5 shrink-0 shadow-sm">
+                                        <span className="text-[9px] font-bold text-amber-500 uppercase tracking-wide leading-tight">Od</span>
+                                        <span className="text-sm font-bold text-amber-900 tabular-nums leading-tight">
+                                            {fmtPL(addDays(selectedDateRange.minStart, sliderOffset))}
+                                        </span>
+                                    </div>
+                                )}
+
+                                <div className="w-px h-8 bg-amber-200 shrink-0"></div>
+
+                                {/* Count */}
+                                <span className="text-amber-800 font-semibold text-sm whitespace-nowrap shrink-0">
+                                    Zaznaczono: {selectedIds.size} {selectedIds.size === 1 ? 'zadanie' : selectedIds.size < 5 ? 'zadania' : 'zadań'}
+                                </span>
+
+                                {/* Shift target toggle */}
+                                <div className="flex items-center gap-0.5 bg-amber-100 border border-amber-300 rounded-lg p-0.5 shrink-0">
+                                    {[['both','Obie'],['start','Start'],['end','Koniec']].map(([v,label]) => (
+                                        <button key={v} onClick={() => setShiftTarget(v)}
+                                            className={`px-2 py-0.5 rounded text-xs font-medium transition-colors whitespace-nowrap ${shiftTarget === v ? 'bg-amber-600 text-white shadow-sm' : 'text-amber-700 hover:bg-amber-200'}`}
+                                        >{label}</button>
+                                    ))}
+                                </div>
+
+                                {/* Manual shift */}
+                                <div className="flex items-center gap-1.5 text-sm shrink-0">
+                                    <span className="text-slate-600 whitespace-nowrap text-xs">Przesuń o:</span>
+                                    <button onClick={() => setShiftDays(v => String(Number(v) - 1))}
+                                        className="w-6 h-6 flex items-center justify-center bg-slate-200 hover:bg-slate-300 rounded text-slate-700 font-bold text-sm leading-none transition-colors">−</button>
+                                    <input
+                                        type="number"
+                                        value={shiftDays}
+                                        onChange={e => setShiftDays(e.target.value)}
+                                        className="w-14 border border-slate-300 rounded-lg px-2 py-0.5 text-center focus:ring-2 focus:ring-brand-500 outline-none text-sm"
+                                    />
+                                    <button onClick={() => setShiftDays(v => String(Number(v) + 1))}
+                                        className="w-6 h-6 flex items-center justify-center bg-slate-200 hover:bg-slate-300 rounded text-slate-700 font-bold text-sm leading-none transition-colors">+</button>
+                                </div>
+                                <button
+                                    onClick={handleShiftDates}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium transition-colors shrink-0"
+                                ><IconShift /> Przesuń</button>
+
+                                <div className="w-px h-8 bg-amber-200 shrink-0"></div>
+
+                                {/* Drag slider */}
+                                <div className="flex items-center gap-1.5 flex-1 min-w-[160px]">
+                                    <span className="text-amber-400 text-xs shrink-0">◀</span>
+                                    <input
+                                        type="range" min="-90" max="90" step="1"
+                                        value={sliderOffset}
+                                        onChange={e => setSliderOffset(Number(e.target.value))}
+                                        onMouseUp={handleSliderCommit}
+                                        onTouchEnd={handleSliderCommit}
+                                        className="flex-1 accent-amber-500 cursor-pointer"
+                                        title="Przeciągnij aby przesunąć zaznaczone zadania"
+                                    />
+                                    <span className="text-amber-400 text-xs shrink-0">▶</span>
+                                    {sliderOffset !== 0 && (
+                                        <span className="text-amber-700 text-xs font-bold tabular-nums whitespace-nowrap shrink-0">
+                                            {sliderOffset > 0 ? `+${sliderOffset}` : sliderOffset}d
+                                        </span>
+                                    )}
+                                </div>
+
+                                <button
+                                    onClick={handleDeleteSelected}
+                                    className="flex items-center gap-1 px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 border border-red-300 rounded-lg text-xs font-medium transition-colors shrink-0"
+                                    title="Usuń zaznaczone zadania"
+                                ><IconTrash /> Usuń</button>
+
+                                <button
+                                    onClick={() => { setSelectedIds(new Set()); setSliderOffset(0); }}
+                                    className="px-3 py-1 text-slate-500 hover:bg-slate-200 rounded-lg text-xs transition-colors shrink-0"
+                                >Odznacz</button>
+
+                                <div className="w-px h-8 bg-amber-200 shrink-0"></div>
+
+                                {/* Right date pill */}
+                                {selectedDateRange && (
+                                    <div className="flex flex-col items-center bg-white border border-amber-300 rounded-lg px-2.5 py-0.5 shrink-0 shadow-sm">
+                                        <span className="text-[9px] font-bold text-amber-500 uppercase tracking-wide leading-tight">Do</span>
+                                        <span className="text-sm font-bold text-amber-900 tabular-nums leading-tight">
+                                            {fmtPL(addDays(selectedDateRange.maxEnd, sliderOffset))}
+                                        </span>
+                                    </div>
+                                )}
+
+                            </div>
+                        )}
+
+                        <div className="flex-1 bg-white rounded-xl shadow border border-slate-200 flex overflow-hidden">
+                            
+                            {/* Left Panel: Task List */}
+                            <div ref={leftPanelRef} style={{ width: `${leftPanelWidth}px`, minWidth: '280px', flexShrink: 0 }} className="border-r border-slate-200 flex flex-col bg-slate-50 z-20 shadow-[4px_0_15px_-3px_rgba(0,0,0,0.1)]">
+                                <div className="h-12 border-b border-slate-200 bg-slate-100 flex items-center px-2 font-semibold text-sm text-slate-600 shrink-0">
+                                    <div className="w-6 shrink-0 flex items-center justify-center">
+                                        <input type="checkbox"
+                                            checked={tasks.length > 0 && selectedIds.size === tasks.length}
+                                            ref={el => { if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < tasks.length; }}
+                                            onChange={toggleSelectAll}
+                                            className="w-4 h-4 rounded border-slate-300 cursor-pointer accent-brand-600"
+                                            title="Zaznacz wszystkie"
+                                        />
+                                    </div>
+                                    <div className="w-5 text-center shrink-0 text-slate-400 text-xs">#</div>
+                                    <div className="w-6 text-center shrink-0" title="Komentarz"></div>
+                                    <div className="flex-1">Nazwa Zadania / Obiekt</div>
+                                    <div className="w-8 text-center shrink-0">
+                                        <button ref={znakHeaderRef} onClick={handleZnakHeaderClick}
+                                            className="font-semibold text-slate-600 hover:text-brand-600 transition-colors leading-none"
+                                            title="Kolumna Znak — kliknij aby zmienić emoji">Znak</button>
+                                    </div>
+                                    <div className="w-14 text-center">Czas (tyg)</div>
+                                    <div className="w-6 shrink-0"></div>
+                                </div>
+                                <div className="overflow-y-auto flex-1 gantt-scroll" ref={listScrollRef} onScroll={handleListScroll}>
+                                    {tasks.map((task, index) => {
+                                        const durationDays = Math.ceil((new Date(task.end) - new Date(task.start)) / (1000 * 60 * 60 * 24));
+                                        const durationWeeks = Math.round(durationDays / 7);
+                                        const isSelected = selectedIds.has(task.id);
+
+                                    const catColor = getCatColor(task.category);
+                                        let dotColor = catColor;
+                                        
+                                        return (
+                                            <div key={task.id}
+                                                draggable
+                                                onDragStart={() => handleDragStart(index)}
+                                                onDragEnter={() => handleDragEnter(index)}
+                                                onDragOver={e => e.preventDefault()}
+                                                onDragEnd={handleDragEnd}
+                                                className={`group border-b border-slate-100 flex items-center px-2 transition-colors
+                                                    ${isSelected ? 'bg-amber-50 hover:bg-amber-100' : 'bg-white hover:bg-blue-50'}
+                                                    ${dragOverIndex === index && dragItem.current !== index ? 'border-t-2 border-t-brand-500' : ''}`}
+                                                style={{ height: syncRows ? `${rowHeight}px` : '56px' }}>
+                                    <div className="w-6 shrink-0 flex items-center justify-center">
+                                        <input type="checkbox"
+                                            checked={isSelected}
+                                            onChange={() => toggleSelect(task.id)}
+                                            className="w-4 h-4 rounded border-slate-300 cursor-pointer accent-brand-600"
+                                            onClick={e => e.stopPropagation()}
+                                        />
+                                    </div>
+                                    <div className="w-5 shrink-0 text-center text-xs text-slate-400 font-mono select-none">{index + 1}</div>
+                                    <div className="w-6 shrink-0 flex items-center justify-center">
+                                        <button
+                                            onClick={e => { e.stopPropagation(); handleEditTask(task); }}
+                                            title={task.comment ? task.comment : 'Brak komentarza — kliknij edytuj'}
+                                            className={`transition-colors hover:text-brand-600 ${task.comment ? 'text-brand-500' : 'text-slate-300 hover:text-slate-500'}`}
+                                        ><IconComment /></button>
+                                    </div>
+                                    <div className="flex-1 min-w-0 pr-2 relative group/name">
+                                        <div
+                                            className="font-medium text-slate-800 text-sm truncate cursor-pointer hover:text-brand-600 transition-colors select-none"
+                                            onDoubleClick={e => { e.stopPropagation(); handleEditTask(task); }}
+                                            onClick={e => {
+                                                e.stopPropagation();
+                                                setOpenMenuId(prev => prev === task.id ? null : task.id);
+                                            }}
+                                            title="Kliknij aby otworzyć menu akcji · Dwuklik aby edytować"
+                                        >
+                                            {task.name}
+                                        </div>
+                                        <div className="text-xs text-slate-500 flex items-center gap-1">
+                                            <div className={`w-2 h-2 rounded-full shrink-0`} style={{background: dotColor}}></div>
+                                            <span className="truncate">{task.category}</span>
+                                        </div>
+                                        {openMenuId === task.id && (
+                                            <div className="absolute left-0 top-full mt-0.5 z-50 bg-white border border-slate-200 rounded-xl shadow-xl py-1 min-w-[170px]"
+                                                 onClick={e => e.stopPropagation()}>
+                                                <button onClick={() => { handleEditTask(task); setOpenMenuId(null); }}
+                                                    className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors">
+                                                    <IconEdit /> Edytuj
+                                                </button>
+                                                <button onClick={() => { moveTask(index, -1); setOpenMenuId(null); }} disabled={index === 0}
+                                                    className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-30">
+                                                    <IconUp /> Przesuń w górę
+                                                </button>
+                                                <button onClick={() => { moveTask(index, 1); setOpenMenuId(null); }} disabled={index === tasks.length - 1}
+                                                    className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-30">
+                                                    <IconDown /> Przesuń w dół
+                                                </button>
+                                                <div className="border-t border-slate-100 my-0.5"></div>
+                                                <button onClick={() => { handleDeleteTask(task.id); setOpenMenuId(null); }}
+                                                    className="flex items-center gap-2 w-full px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                                    <IconTrash /> Usuń
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                                <div className="w-8 shrink-0 flex items-center justify-center">
+                                                    <button
+                                                        onClick={() => { pushHistory(tasks); setTasks(tasks.map(t => t.id === task.id ? {...t, closure: !t.closure} : t)); }}
+                                                        title={`Stan ${task.closure ? 'B' : 'A'} — kliknij aby przełączyć`}
+                                                        className="text-xl leading-none hover:scale-125 transition-transform"
+                                                    >{task.closure ? znakEmojis[1] : znakEmojis[0]}</button>
+                                                </div>
+                                                <div className="w-14 text-center text-sm text-slate-600 font-medium shrink-0">
+                                                    {durationWeeks}
+                                                </div>
+                                                <div className="w-6 shrink-0 flex items-center justify-center cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 select-none"
+                                                    title="Przeciągnij aby zmienić kolejność">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Resize handle */}
+                            <div
+                                onMouseDown={handlePanelResizeMouseDown}
+                                className="w-1.5 shrink-0 cursor-col-resize bg-slate-200 hover:bg-brand-400 active:bg-brand-500 transition-colors z-30 relative group"
+                                title="Przeciągnij aby zmienić szerokość tabeli"
+                            >
+                                <div className="absolute inset-y-0 left-0 w-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="w-0.5 h-12 bg-white rounded-full mx-px"></div>
+                                    <div className="w-0.5 h-12 bg-white rounded-full mx-px"></div>
+                                </div>
+                            </div>
+
+                            {/* Right Panel: Gantt Chart — single scroll container so header & rows stay aligned */}
+                            <div className="flex-1 min-w-0 overflow-auto gantt-scroll bg-slate-50" id="gantt-container"
+                                ref={ganttScrollRef} onScroll={handleGanttScroll}>
+                                <div style={{ width: `${timeline.totalDays * PIXELS_PER_DAY}px`, minWidth: '100%' }}>
+
+                                    {/* Timeline Header — sticky top so it stays visible while scrolling vertically */}
+                                    <div className="h-12 border-b border-slate-200 bg-slate-100 sticky top-0 z-20 relative">
+                                        {timeline.months.map((month, i) => (
+                                            <div key={i} className="absolute top-0 bottom-0 border-l border-slate-300 pl-2 pt-3 text-xs font-semibold text-slate-500"
+                                                 style={{ left: `${month.offsetDays * PIXELS_PER_DAY}px` }}>
+                                                {month.label}
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Gantt Rows */}
+                                    <div className="relative select-none" ref={ganttRowsRef}
+                                        onMouseDown={handleGanttMouseDown}
+                                        style={{ cursor: lasso ? 'crosshair' : undefined }}
+                                    >
+                                        {/* Vertical grid lines — same coordinate system as bars */}
+                                        {timeline.months.map((month, i) => (
+                                            <div key={`grid-${i}`} className="absolute top-0 bottom-0 border-l border-slate-200 z-0 pointer-events-none"
+                                                 style={{ left: `${month.offsetDays * PIXELS_PER_DAY}px` }}>
+                                            </div>
+                                        ))}
+
+                                        {tasks.map((task) => {
+                                            const startOffset = Math.ceil((new Date(task.start) - timeline.minDate) / (1000 * 60 * 60 * 24));
+                                            const duration = Math.ceil((new Date(task.end) - new Date(task.start)) / (1000 * 60 * 60 * 24));
+                                            const isSelectedBar = selectedIds.has(task.id);
+                                            const barWidth = Math.max(duration * PIXELS_PER_DAY, 4);
+                                            const barLeft = startOffset * PIXELS_PER_DAY;
+                                            const barH = Math.max(rowHeight - 12, 16);
+                                            const barTop = Math.floor((rowHeight - barH) / 2);
+                                            const fontSize = Math.max(9, Math.min(13, Math.round(rowHeight / 5)));
+
+                                            const durationWeeks = Math.round(duration / 7);
+                                            const catHex = task.closure ? null : getCatColor(task.category);
+                                            let barClass = task.closure ? "bg-striped-red border-red-700" : "border-slate-500";
+                                            const barStyle = task.closure ? {} : { background: catHex, borderColor: catHex };
+
+                                            return (
+                                                <div key={`bar-${task.id}`}
+                                                    className={`border-b border-slate-100/50 relative transition-colors group ${isSelectedBar ? 'bg-amber-50/60' : 'hover:bg-slate-100/50'}`}
+                                                    style={{ height: `${rowHeight}px` }}
+                                                >
+                                                    <div
+                                                        data-bar="true"
+                                                        onClick={() => handleEditTask(task)}
+                                                        className={`absolute rounded-md border shadow-sm cursor-pointer z-10 flex items-center px-2 text-white overflow-hidden transition-all hover:brightness-110 hover:shadow-md ${barClass} ${isSelectedBar ? 'ring-2 ring-offset-1 ring-amber-400' : ''}`}
+                                                        style={{ left: `${barLeft}px`, top: `${barTop}px`, width: `${barWidth}px`, height: `${barH}px`, fontSize: `${fontSize}px`, ...barStyle }}
+                                                        title={`${task.name}\nStart: ${task.start}\nKoniec: ${task.end}\nZamknięcie: ${task.closure ? 'TAK' : 'NIE'}`}
+                                                    >
+                                                        {showBarDates && barWidth >= 20 && (
+                                                            <span className="w-full text-center text-white/90 font-bold select-none" style={{fontSize: Math.max(8, fontSize - 1)}}>{durationWeeks}</span>
+                                                        )}
+                                                    </div>
+                                    {(showBarDates || isSelectedBar) && (() => {
+                                        const showStart = showBarDates || (isSelectedBar && shiftTarget !== 'end');
+                                        const showEnd   = showBarDates || (isSelectedBar && shiftTarget !== 'start');
+                                        const dateFontSize = Math.max(8, fontSize - 2);
+                                        const isEditStart = editingBarDate && editingBarDate.id === task.id && editingBarDate.field === 'start';
+                                        const isEditEnd   = editingBarDate && editingBarDate.id === task.id && editingBarDate.field === 'end';
+                                        return (
+                                            <>
+                                                {/* Start — before bar, top-aligned */}
+                                                {showStart && (
+                                                    isEditStart ? (
+                                                        <input type="date" defaultValue={task.start} autoFocus
+                                                            className="absolute z-30 border border-brand-500 rounded px-1 bg-white shadow-lg text-xs"
+                                                            style={{ right: `calc(100% - ${barLeft}px)`, top: `${barTop}px`, fontSize: dateFontSize, width: '120px' }}
+                                                            onBlur={e => { pushHistory(tasks); setTasks(tasks.map(t2 => t2.id===task.id ? {...t2, start: e.target.value} : t2)); setEditingBarDate(null); }}
+                                                            onKeyDown={e => { if (e.key==='Escape') setEditingBarDate(null); if (e.key==='Enter') e.target.blur(); }}
+                                                            onClick={e => e.stopPropagation()}
+                                                        />
+                                                    ) : (
+                                                        <div className={`absolute z-20 ${isSelectedBar ? 'cursor-pointer hover:text-brand-600 hover:underline' : 'pointer-events-none'}`}
+                                                            style={{ right: `calc(100% - ${barLeft}px)`, top: `${barTop}px`, fontSize: dateFontSize, color: isSelectedBar ? '#0284c7' : '#475569', whiteSpace: 'nowrap', lineHeight: '1.2', paddingRight: '3px', textAlign: 'right' }}
+                                                            onClick={e => { if (!isSelectedBar) return; e.stopPropagation(); setEditingBarDate({id: task.id, field: 'start'}); }}
+                                                            title={isSelectedBar ? 'Kliknij aby edytować datę startu' : ''}
+                                                        >{fmtPL(task.start)}</div>
+                                                    )
+                                                )}
+                                                {/* End — after bar, top-aligned */}
+                                                {showEnd && (
+                                                    isEditEnd ? (
+                                                        <input type="date" defaultValue={task.end} autoFocus
+                                                            className="absolute z-30 border border-brand-500 rounded px-1 bg-white shadow-lg text-xs"
+                                                            style={{ left: `${barLeft + barWidth + 4}px`, top: `${barTop}px`, fontSize: dateFontSize, width: '120px' }}
+                                                            onBlur={e => { pushHistory(tasks); setTasks(tasks.map(t2 => t2.id===task.id ? {...t2, end: e.target.value} : t2)); setEditingBarDate(null); }}
+                                                            onKeyDown={e => { if (e.key==='Escape') setEditingBarDate(null); if (e.key==='Enter') e.target.blur(); }}
+                                                            onClick={e => e.stopPropagation()}
+                                                        />
+                                                    ) : (
+                                                        <div className={`absolute z-20 ${isSelectedBar ? 'cursor-pointer hover:text-brand-600 hover:underline' : 'pointer-events-none'}`}
+                                                            style={{ left: `${barLeft + barWidth + 4}px`, top: `${barTop}px`, fontSize: dateFontSize, color: isSelectedBar ? '#0284c7' : '#475569', whiteSpace: 'nowrap', lineHeight: '1.2' }}
+                                                            onClick={e => { if (!isSelectedBar) return; e.stopPropagation(); setEditingBarDate({id: task.id, field: 'end'}); }}
+                                                            title={isSelectedBar ? 'Kliknij aby edytować datę końca' : ''}
+                                                        >{fmtPL(task.end)}</div>
+                                                    )
+                                                )}
+                                            </>
+                                        );
+                                    })()}
+                                                    <div className="absolute z-20 pointer-events-none"
+                                                        style={{ left: `${barLeft + barWidth + 4}px`, top: `${barTop + (showBarDates ? Math.max(8, fontSize - 2) + 2 : 0)}px`, height: `${barH}px`, fontSize: `${fontSize}px`, whiteSpace: 'nowrap', color: '#334155', fontWeight: 500, display: 'flex', alignItems: 'center', lineHeight: 1.1 }}
+                                                    >
+                                                        <span>{task.name}</span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                        {/* Lasso selection rect */}
+                                        {lasso && (() => {
+                                            const lx = Math.min(lasso.x1, lasso.x2);
+                                            const ly = Math.min(lasso.y1, lasso.y2);
+                                            const lw = Math.abs(lasso.x2 - lasso.x1);
+                                            const lh = Math.abs(lasso.y2 - lasso.y1);
+                                            return (
+                                                <div style={{
+                                                    position: 'absolute', left: lx, top: ly,
+                                                    width: lw, height: lh, zIndex: 50,
+                                                    border: '1.5px dashed #f59e0b',
+                                                    background: 'rgba(245,158,11,0.08)',
+                                                    pointerEvents: 'none',
+                                                }} />
+                                            );
+                                        })()}
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* Legend */}
+                        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600 shrink-0">
+                            {categories.map((cat, i) => (
+                                <div key={cat} className="flex items-center gap-2">
+                                    <div className="w-4 h-4 rounded" style={{background: CAT_COLORS[i % CAT_COLORS.length]}}></div>
+                                    {cat}
+                                </div>
+                            ))}
+                            <div className="flex items-center gap-2"><div className="w-4 h-4 bg-striped-red border border-red-700 rounded"></div> {znakLabels[1] || 'Zamknięcie torowe'}</div>
+                            <div className="w-px bg-slate-300 self-stretch mx-1"></div>
+                            {znakLabels.map((label, i) => label.trim() ? (
+                                <div key={i} className="flex items-center gap-1.5">
+                                    <span className="text-base leading-none">{znakEmojis[i]}</span>
+                                    <span>{label}</span>
+                                </div>
+                            ) : null)}
+                        </div>
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="bg-slate-900 text-slate-400 text-xs px-6 py-2 shrink-0 flex items-center justify-between gap-4 flex-wrap">
+                        <span>Created by <span className="text-slate-300 font-medium">Slim Software</span> in Wrocław, Poland</span>
+                        <div className="flex items-center gap-3">
+                            {!showDonateMsg ? (
+                                <span className="flex items-center gap-2">
+                                    Podoba Ci się?
+                                    <button onClick={handleLike}
+                                        className={`text-lg leading-none transition-transform hover:scale-125 ${likedGiGantt ? 'text-amber-400' : 'text-slate-500 hover:text-amber-300'}`}
+                                        title="Lubię to!">👍</button>
+                                </span>
+                            ) : (
+                                <span className="flex items-center gap-2 text-slate-300">
+                                    giGantt jest mały i darmowy, ale jak chcesz to
+                                    <a href="https://donate.stripe.com/PLACEHOLDER" target="_blank" rel="noreferrer"
+                                        className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-full text-xs font-semibold transition-all shadow">
+                                        💜 Przekaż donację
+                                    </a>
+                                </span>
+                            )}
+                        </div>
+                    </footer>
+
+                    <AiPanel isOpen={isAiPanelOpen} onClose={() => setAiPanelOpen(false)} onImport={handleAiImport} tasks={tasks} />
+                    <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)} task={editingTask} onSave={handleSaveTask} tasks={tasks} categories={categories} />
+                    {znakPickerOpen && (
+                        <ZnakPicker
+                            pos={znakPickerPos}
+                            emojis={znakEmojis}
+                            labels={znakLabels}
+                            pickingSlot={znakPickingSlot}
+                            onSelectSlot={setZnakPickingSlot}
+                            onSelectEmoji={handleZnakEmojiSelect}
+                            onLabelChange={handleZnakLabelChange}
+                            onClose={() => setZnakPickerOpen(false)}
+                        />
+                    )}
+
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+
+</body></html>
