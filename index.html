@@ -1388,7 +1388,7 @@ DANE:\n${inputText}`;
                                     <div className="flex flex-col items-center bg-white border border-amber-300 rounded-lg px-2.5 py-0.5 shrink-0 shadow-sm">
                                         <span className="text-[9px] font-bold text-amber-500 uppercase tracking-wide leading-tight">Od</span>
                                         <span className="text-sm font-bold text-amber-900 tabular-nums leading-tight">
-                                            {fmtPL(addDays(selectedDateRange.minStart, sliderOffset))}
+                                            {fmtPL(addDays(selectedDateRange.minStart, sliderOffset + barDragOffset))}
                                         </span>
                                     </div>
                                 )}
@@ -1443,9 +1443,9 @@ DANE:\n${inputText}`;
                                         title="Przeciągnij aby przesunąć zaznaczone zadania"
                                     />
                                     <span className="text-amber-400 text-xs shrink-0">▶</span>
-                                    {sliderOffset !== 0 && (
+                                    {(sliderOffset !== 0 || barDragOffset !== 0) && (
                                         <span className="text-amber-700 text-xs font-bold tabular-nums whitespace-nowrap shrink-0">
-                                            {sliderOffset > 0 ? `+${sliderOffset}` : sliderOffset}d
+                                            {(sliderOffset + barDragOffset) > 0 ? `+${sliderOffset + barDragOffset}` : (sliderOffset + barDragOffset)}d
                                         </span>
                                     )}
                                 </div>
@@ -1468,7 +1468,7 @@ DANE:\n${inputText}`;
                                     <div className="flex flex-col items-center bg-white border border-amber-300 rounded-lg px-2.5 py-0.5 shrink-0 shadow-sm">
                                         <span className="text-[9px] font-bold text-amber-500 uppercase tracking-wide leading-tight">Do</span>
                                         <span className="text-sm font-bold text-amber-900 tabular-nums leading-tight">
-                                            {fmtPL(addDays(selectedDateRange.maxEnd, sliderOffset))}
+                                            {fmtPL(addDays(selectedDateRange.maxEnd, sliderOffset + barDragOffset))}
                                         </span>
                                     </div>
                                 )}
