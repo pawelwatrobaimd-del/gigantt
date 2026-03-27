@@ -59,6 +59,9 @@
             background: #94a3b8;
         }
         
+        /* Hide horizontal scrollbar inside gantt — shown via pinned div at bottom instead */
+        #gantt-container::-webkit-scrollbar:horizontal { height: 0; }
+
         /* Striped background for "Zamknięcie torowe" */
         .bg-striped-red {
             background-image: repeating-linear-gradient(
@@ -448,19 +451,19 @@ DANE:\n${inputText}`;
         const initialTasks = [
                       { "id": 1, "name": "Projekt i pozwolenie na budowę", "category": "Budynek", "start": "2027-01-01", "end": "2027-03-15", "closure": false, "comment": "" },
                       { "id": 2, "name": "Wytyczenie działki i niwelacja", "category": "Budynek", "start": "2027-03-15", "end": "2027-04-05", "closure": false, "comment": "" },
-                      { "id": 3, "name": "Roboty ziemne i wykop", "category": "Budynek", "start": "2027-04-05", "end": "2027-04-26", "closure": false, "comment": "" },
-                      { "id": 4, "name": "Fundamenty i ławy betonowe", "category": "Budynek", "start": "2027-04-26", "end": "2027-06-07", "closure": false, "comment": "" },
+                      { "id": 3, "name": "Roboty ziemne i wykop", "category": "Budynek", "start": "2027-04-05", "end": "2027-04-26", "closure": true, "comment": "" },
+                      { "id": 4, "name": "Fundamenty i ławy betonowe", "category": "Budynek", "start": "2027-04-26", "end": "2027-06-07", "closure": true, "comment": "" },
                       { "id": 5, "name": "Izolacja przeciwwilgociowa", "category": "Budynek", "start": "2027-06-07", "end": "2027-06-21", "closure": false, "comment": "" },
-                      { "id": 6, "name": "Murowanie ścian parteru", "category": "Budynek", "start": "2027-06-21", "end": "2027-08-16", "closure": false, "comment": "" },
-                      { "id": 7, "name": "Strop nad parterem", "category": "Budynek", "start": "2027-08-16", "end": "2027-09-13", "closure": false, "comment": "" },
-                      { "id": 8, "name": "Murowanie ścian piętra", "category": "Budynek", "start": "2027-09-13", "end": "2027-10-18", "closure": false, "comment": "" },
+                      { "id": 6, "name": "Murowanie ścian parteru", "category": "Budynek", "start": "2027-06-21", "end": "2027-08-16", "closure": true, "comment": "" },
+                      { "id": 7, "name": "Strop nad parterem", "category": "Budynek", "start": "2027-08-16", "end": "2027-09-13", "closure": true, "comment": "" },
+                      { "id": 8, "name": "Murowanie ścian piętra", "category": "Budynek", "start": "2027-09-13", "end": "2027-10-18", "closure": true, "comment": "" },
                       { "id": 9, "name": "Więźba dachowa i pokrycie", "category": "Budynek", "start": "2027-10-18", "end": "2027-11-22", "closure": false, "comment": "" },
                       { "id": 10, "name": "Okna i drzwi zewnętrzne", "category": "Budynek", "start": "2027-11-22", "end": "2027-12-13", "closure": false, "comment": "" },
                       { "id": 11, "name": "Odbiór stanu surowego", "category": "Budynek", "start": "2027-12-13", "end": "2027-12-31", "closure": false, "comment": "" },
                       { "id": 12, "name": "Projekt instalacji wewnętrznych", "category": "Instalacje", "start": "2027-01-01", "end": "2027-04-01", "closure": false, "comment": "" },
                       { "id": 13, "name": "Przyłącze wodociągowe", "category": "Instalacje", "start": "2027-04-01", "end": "2027-04-15", "closure": false, "comment": "" },
-                      { "id": 14, "name": "Przyłącze kanalizacyjne", "category": "Instalacje", "start": "2027-04-15", "end": "2027-05-06", "closure": false, "comment": "" },
-                      { "id": 15, "name": "Instalacja elektryczna — rury", "category": "Instalacje", "start": "2027-12-13", "end": "2028-01-10", "closure": false, "comment": "" },
+                      { "id": 14, "name": "Przyłącze kanalizacyjne", "category": "Instalacje", "start": "2027-04-15", "end": "2027-05-06", "closure": true, "comment": "" },
+                      { "id": 15, "name": "Instalacja elektryczna — rury", "category": "Instalacje", "start": "2027-12-13", "end": "2028-01-10", "closure": true, "comment": "" },
                       { "id": 16, "name": "Instalacja CO i podłogówka", "category": "Instalacje", "start": "2028-01-10", "end": "2028-02-07", "closure": false, "comment": "" },
                       { "id": 17, "name": "Montaż kotła i wentylacji", "category": "Instalacje", "start": "2028-02-07", "end": "2028-03-07", "closure": false, "comment": "" },
                       { "id": 18, "name": "Badania i odbiory instalacji", "category": "Instalacje", "start": "2028-03-07", "end": "2028-03-21", "closure": false, "comment": "" },
@@ -714,8 +717,9 @@ DANE:\n${inputText}`;
             const [lasso, setLasso] = useState(null);
             const lassoRef = useRef(null);
             const ganttRowsRef = useRef(null);
+            const ganttHScrollRef = useRef(null);
 
-            const [znakEmojis, setZnakEmojis] = useState(['🚂', '🚫']);
+            const [znakEmojis, setZnakEmojis] = useState(['\ud83d\udc77', '🚫']);
             const [znakLabels, setZnakLabels] = useState(['Stan A', 'Stan B']);
             const [znakPickerOpen, setZnakPickerOpen] = useState(false);
             const [znakPickingSlot, setZnakPickingSlot] = useState(0);
@@ -761,15 +765,24 @@ DANE:\n${inputText}`;
             }, [syncRows]);
 
             const handleGanttScroll = useCallback(() => {
-                if (!syncRows || isSyncingScroll.current) return;
+                if (isSyncingScroll.current) return;
                 isSyncingScroll.current = true;
-                if (listScrollRef.current) listScrollRef.current.scrollTop = ganttScrollRef.current.scrollTop;
+                if (syncRows && listScrollRef.current) listScrollRef.current.scrollTop = ganttScrollRef.current.scrollTop;
+                if (ganttHScrollRef.current) ganttHScrollRef.current.scrollLeft = ganttScrollRef.current.scrollLeft;
                 isSyncingScroll.current = false;
             }, [syncRows]);
+
+            const handleHScroll = useCallback(() => {
+                if (isSyncingScroll.current) return;
+                isSyncingScroll.current = true;
+                if (ganttScrollRef.current) ganttScrollRef.current.scrollLeft = ganttHScrollRef.current.scrollLeft;
+                isSyncingScroll.current = false;
+            }, []);
             const [shiftDays, setShiftDays] = useState(7);
             const [shiftTarget, setShiftTarget] = useState('both');
             const [sliderOffset, setSliderOffset] = useState(0);
             const [editingBarDate, setEditingBarDate] = useState(null); // {id, field:'start'|'end'}
+            const [barDragOffset, setBarDragOffset] = useState(0); // days offset during bar drag preview
 
             const PIXELS_PER_DAY = pixelsPerDay;
 
@@ -1072,7 +1085,10 @@ DANE:\n${inputText}`;
                     if (!L) return;
                     const selX1 = Math.min(L.x1, L.x2), selX2 = Math.max(L.x1, L.x2);
                     const selY1 = Math.min(L.y1, L.y2), selY2 = Math.max(L.y1, L.y2);
-                    if (selX2 - selX1 < 5 && selY2 - selY1 < 5) return;
+                    if (selX2 - selX1 < 5 && selY2 - selY1 < 5) {
+                        if (!ev.shiftKey) setSelectedIds(new Set());
+                        return;
+                    }
                     const captured_tasks = tasks;
                     const captured_ppd = PIXELS_PER_DAY;
                     const captured_rh = rowHeight;
@@ -1089,6 +1105,52 @@ DANE:\n${inputText}`;
                     if (ev.shiftKey) setSelectedIds(prev => new Set([...prev, ...newSel]));
                     else setSelectedIds(newSel);
                 };
+                document.body.style.userSelect = 'none';
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+            };
+
+            const handleBarDragMouseDown = (e, task) => {
+                if (e.button !== 0) return;
+                e.preventDefault();
+                e.stopPropagation();
+                // Ensure this task is selected (if not already, select only it)
+                let capturedSelectedIds = selectedIds;
+                if (!selectedIds.has(task.id)) {
+                    const next = new Set([task.id]);
+                    setSelectedIds(next);
+                    capturedSelectedIds = next;
+                }
+                const startX = e.clientX;
+                const capturedPPD = PIXELS_PER_DAY;
+                const snapshotTasks = tasks;
+                let currentDays = 0;
+                let hasMoved = false;
+                const onMove = (ev) => {
+                    const dx = ev.clientX - startX;
+                    const days = Math.round(dx / capturedPPD);
+                    if (Math.abs(dx) > 3) hasMoved = true;
+                    if (days !== currentDays) { currentDays = days; setBarDragOffset(days); }
+                };
+                const onUp = () => {
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                    setBarDragOffset(0);
+                    if (hasMoved && currentDays !== 0) {
+                        pushHistory(snapshotTasks);
+                        setTasks(prev => prev.map(t =>
+                            capturedSelectedIds.has(t.id)
+                                ? { ...t, start: addDays(t.start, currentDays), end: addDays(t.end, currentDays) }
+                                : t
+                        ));
+                    } else if (!hasMoved) {
+                        // plain click — toggle selection
+                        toggleSelect(task.id);
+                    }
+                };
+                document.body.style.cursor = 'grabbing';
                 document.body.style.userSelect = 'none';
                 document.addEventListener('mousemove', onMove);
                 document.addEventListener('mouseup', onUp);
@@ -1182,6 +1244,26 @@ DANE:\n${inputText}`;
                                 <button onClick={() => handlePrint('gantt')}
                                     className="flex items-center gap-1 px-2.5 py-1 bg-slate-600 hover:bg-slate-500 text-white rounded-md text-xs font-medium transition-colors shadow-sm whitespace-nowrap"
                                 ><IconPrint /> Drukuj</button>
+                                <div className="w-px h-5 bg-slate-600 shrink-0"></div>
+                                <button onClick={() => {
+                                    if (window.confirm('Resetuj dane?\n\nZastąpi bieżące zadania przykładowym harmonogramem z kodu.\nDane z localStorage zostaną usunięte.\n\nNie można cofnąć tej operacji.')) {
+                                        localStorage.removeItem('harmo1_tasks');
+                                        location.reload();
+                                    }
+                                }}
+                                    className="flex items-center gap-1 px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded-md text-xs font-medium transition-colors shadow-sm whitespace-nowrap"
+                                    title="Przywróć dane przykładowe z kodu (usuwa localStorage)"
+                                >↺ Resetuj</button>
+                                <button onClick={() => {
+                                    if (window.confirm('Wyczyść wszystkie zadania?\n\nUsunie WSZYSTKIE pozycje z harmonogramu.\nMożesz cofnąć operację przyciskiem Cofnij.')) {
+                                        pushHistory(tasks);
+                                        setTasks([]);
+                                        setSelectedIds(new Set());
+                                    }
+                                }}
+                                    className="flex items-center gap-1 px-2.5 py-1 bg-red-700 hover:bg-red-600 text-white rounded-md text-xs font-medium transition-colors shadow-sm whitespace-nowrap"
+                                    title="Usuń wszystkie zadania (można cofnąć)"
+                                ><IconTrash /> Wyczyść</button>
                             </div>
                         </div>
                     </header>
@@ -1189,9 +1271,12 @@ DANE:\n${inputText}`;
                     {/* Main Gantt Area */}
                     <main className="flex-1 overflow-hidden flex flex-col p-4">
 
-                        {/* Shift Dates Toolbar */}
-                        {selectedIds.size > 0 && (
-                            <div className="mb-3 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 flex items-center gap-2 flex-wrap shrink-0">
+                        {/* Shift Dates Toolbar — always visible, fixed height */}
+                        <div className={`mb-3 rounded-xl px-3 flex items-center gap-2 flex-wrap shrink-0 transition-colors overflow-hidden ${selectedIds.size > 0 ? 'bg-amber-50 border border-amber-200' : 'bg-slate-100 border border-slate-200'}`} style={{height:'44px'}}>
+
+                            {selectedIds.size === 0 ? (
+                                <span className="text-slate-400 text-sm select-none">Zaznacz pozycje na liście lub kliknij pasek na wykresie, aby przesunąć</span>
+                            ) : (<>
 
                                 {/* Left date pill */}
                                 {selectedDateRange && (
@@ -1283,8 +1368,8 @@ DANE:\n${inputText}`;
                                     </div>
                                 )}
 
-                            </div>
-                        )}
+                            </>)}
+                        </div>
 
                         <div className="flex-1 bg-white rounded-xl shadow border border-slate-200 flex overflow-hidden">
                             
@@ -1418,8 +1503,9 @@ DANE:\n${inputText}`;
                                 </div>
                             </div>
 
-                            {/* Right Panel: Gantt Chart — single scroll container so header & rows stay aligned */}
-                            <div className="flex-1 min-w-0 overflow-auto gantt-scroll bg-slate-50" id="gantt-container"
+                            {/* Right Panel: Gantt Chart */}
+                            <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
+                            <div className="flex-1 overflow-auto gantt-scroll bg-slate-50" id="gantt-container"
                                 ref={ganttScrollRef} onScroll={handleGanttScroll}>
                                 <div style={{ width: `${timeline.totalDays * PIXELS_PER_DAY}px`, minWidth: '100%' }}>
 
@@ -1467,10 +1553,11 @@ DANE:\n${inputText}`;
                                                 >
                                                     <div
                                                         data-bar="true"
-                                                        onClick={() => handleEditTask(task)}
-                                                        className={`absolute rounded-md border shadow-sm cursor-pointer z-10 flex items-center px-2 text-white overflow-hidden transition-all hover:brightness-110 hover:shadow-md ${barClass} ${isSelectedBar ? 'ring-2 ring-offset-1 ring-amber-400' : ''}`}
-                                                        style={{ left: `${barLeft}px`, top: `${barTop}px`, width: `${barWidth}px`, height: `${barH}px`, fontSize: `${fontSize}px`, ...barStyle }}
-                                                        title={`${task.name}\nStart: ${task.start}\nKoniec: ${task.end}\nZamknięcie: ${task.closure ? 'TAK' : 'NIE'}`}
+                                                        onMouseDown={(e) => handleBarDragMouseDown(e, task)}
+                                                        onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); handleEditTask(task); }}
+                                                        className={`absolute rounded-md border shadow-sm z-10 flex items-center px-2 text-white overflow-hidden transition-[box-shadow,filter] hover:brightness-110 hover:shadow-md ${barClass} ${isSelectedBar ? 'ring-2 ring-offset-1 ring-amber-400 cursor-grab active:cursor-grabbing' : 'cursor-pointer'}`}
+                                                        style={{ left: `${barLeft}px`, top: `${barTop}px`, width: `${barWidth}px`, height: `${barH}px`, fontSize: `${fontSize}px`, ...barStyle, ...(isSelectedBar && barDragOffset !== 0 ? { transform: `translateX(${barDragOffset * PIXELS_PER_DAY}px)`, transition: 'none' } : {}) }}
+                                                        title={`${task.name}\nStart: ${task.start}\nKoniec: ${task.end}\nZamknięcie: ${task.closure ? 'TAK' : 'NIE'}\n\n[LPM] zaznacz / przeciągnij  [PPM] edytuj`}
                                                     >
                                                         {showBarDates && barWidth >= 20 && (
                                                             <span className="w-full text-center text-white/90 font-bold select-none" style={{fontSize: Math.max(8, fontSize - 1)}}>{durationWeeks}</span>
@@ -1482,6 +1569,7 @@ DANE:\n${inputText}`;
                                         const dateFontSize = Math.max(8, fontSize - 2);
                                         const isEditStart = editingBarDate && editingBarDate.id === task.id && editingBarDate.field === 'start';
                                         const isEditEnd   = editingBarDate && editingBarDate.id === task.id && editingBarDate.field === 'end';
+                                        const dragPx = isSelectedBar && barDragOffset !== 0 ? barDragOffset * PIXELS_PER_DAY : 0;
                                         return (
                                             <>
                                                 {/* Start — before bar, top-aligned */}
@@ -1496,7 +1584,7 @@ DANE:\n${inputText}`;
                                                         />
                                                     ) : (
                                                         <div className={`absolute z-20 ${isSelectedBar ? 'cursor-pointer hover:text-brand-600 hover:underline' : 'pointer-events-none'}`}
-                                                            style={{ right: `calc(100% - ${barLeft}px)`, top: `${barTop}px`, fontSize: dateFontSize, color: isSelectedBar ? '#0284c7' : '#475569', whiteSpace: 'nowrap', lineHeight: '1.2', paddingRight: '3px', textAlign: 'right' }}
+                                                            style={{ right: `calc(100% - ${barLeft + dragPx}px)`, top: `${barTop}px`, fontSize: dateFontSize, color: isSelectedBar ? '#0284c7' : '#475569', whiteSpace: 'nowrap', lineHeight: '1.2', paddingRight: '3px', textAlign: 'right' }}
                                                             onClick={e => { if (!isSelectedBar) return; e.stopPropagation(); setEditingBarDate({id: task.id, field: 'start'}); }}
                                                             title={isSelectedBar ? 'Kliknij aby edytować datę startu' : ''}
                                                         >{fmtPL(task.start)}</div>
@@ -1514,7 +1602,7 @@ DANE:\n${inputText}`;
                                                         />
                                                     ) : (
                                                         <div className={`absolute z-20 ${isSelectedBar ? 'cursor-pointer hover:text-brand-600 hover:underline' : 'pointer-events-none'}`}
-                                                            style={{ left: `${barLeft + barWidth + 4}px`, top: `${barTop}px`, fontSize: dateFontSize, color: isSelectedBar ? '#0284c7' : '#475569', whiteSpace: 'nowrap', lineHeight: '1.2' }}
+                                                            style={{ left: `${barLeft + barWidth + dragPx + 4}px`, top: `${barTop}px`, fontSize: dateFontSize, color: isSelectedBar ? '#0284c7' : '#475569', whiteSpace: 'nowrap', lineHeight: '1.2' }}
                                                             onClick={e => { if (!isSelectedBar) return; e.stopPropagation(); setEditingBarDate({id: task.id, field: 'end'}); }}
                                                             title={isSelectedBar ? 'Kliknij aby edytować datę końca' : ''}
                                                         >{fmtPL(task.end)}</div>
@@ -1524,7 +1612,7 @@ DANE:\n${inputText}`;
                                         );
                                     })()}
                                                     <div className="absolute z-20 pointer-events-none"
-                                                        style={{ left: `${barLeft + barWidth + 4}px`, top: `${barTop + (showBarDates ? Math.max(8, fontSize - 2) + 2 : 0)}px`, height: `${barH}px`, fontSize: `${fontSize}px`, whiteSpace: 'nowrap', color: '#334155', fontWeight: 500, display: 'flex', alignItems: 'center', lineHeight: 1.1 }}
+                                                        style={{ left: `${barLeft + barWidth + (isSelectedBar && barDragOffset !== 0 ? barDragOffset * PIXELS_PER_DAY : 0) + 4}px`, top: `${barTop + (showBarDates ? Math.max(8, fontSize - 2) + 2 : 0)}px`, height: `${barH}px`, fontSize: `${fontSize}px`, whiteSpace: 'nowrap', color: '#334155', fontWeight: 500, display: 'flex', alignItems: 'center', lineHeight: 1.1 }}
                                                     >
                                                         <span>{task.name}</span>
                                                     </div>
@@ -1550,6 +1638,12 @@ DANE:\n${inputText}`;
                                     </div>
 
                                 </div>
+                            </div>
+                            {/* Pinned horizontal scrollbar — always visible above footer */}
+                            <div className="overflow-x-auto overflow-y-hidden shrink-0 gantt-scroll"
+                                ref={ganttHScrollRef} onScroll={handleHScroll}>
+                                <div style={{ width: `${timeline.totalDays * PIXELS_PER_DAY}px`, height: '1px' }}></div>
+                            </div>
                             </div>
                         </div>
                         
