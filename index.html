@@ -446,304 +446,38 @@ DANE:\n${inputText}`;
 
         /* HARMO1-DATA-START */
         const initialTasks = [
-                      {
-                                "id": 1,
-                                "name": "Roboty przygotowawcze, w tym prefabrykacja konstrukcji stalowych",
-                                "category": "Most w km 72+209",
-                                "start": "2027-01-01",
-                                "end": "2027-05-30",
-                                "closure": false,
-                                "comment": "w tym prefbrykacja"
-                      },
-                      {
-                                "id": 2,
-                                "name": "Rozbiórka nawierzchni torowej",
-                                "category": "Most w km 72+209",
-                                "start": "2027-06-02",
-                                "end": "2027-06-09",
-                                "closure": true
-                      },
-                      {
-                                "id": 3,
-                                "name": "Demontaż przęseł stalowych",
-                                "category": "Most w km 72+209",
-                                "start": "2027-06-09",
-                                "end": "2027-06-23",
-                                "closure": true
-                      },
-                      {
-                                "id": 4,
-                                "name": "Rozbiórka podpór mostu",
-                                "category": "Most w km 72+209",
-                                "start": "2027-06-23",
-                                "end": "2027-07-13",
-                                "closure": true
-                      },
-                      {
-                                "id": 5,
-                                "name": "Wykonanie posadowienia",
-                                "category": "Most w km 72+209",
-                                "start": "2027-07-13",
-                                "end": "2027-08-10",
-                                "closure": true
-                      },
-                      {
-                                "id": 6,
-                                "name": "Wykonanie oczepów palowych",
-                                "category": "Most w km 72+209",
-                                "start": "2027-08-10",
-                                "end": "2027-09-08",
-                                "closure": true
-                      },
-                      {
-                                "id": 7,
-                                "name": "Wykonanie korpusów podpór",
-                                "category": "Most w km 72+209",
-                                "start": "2027-09-08",
-                                "end": "2027-10-20",
-                                "closure": true
-                      },
-                      {
-                                "id": 8,
-                                "name": "Montaż przęseł mostu",
-                                "category": "Most w km 72+209",
-                                "start": "2027-10-20",
-                                "end": "2027-11-18",
-                                "closure": true
-                      },
-                      {
-                                "id": 9,
-                                "name": "Montaż naw. oraz sieci obcych",
-                                "category": "Most w km 72+209",
-                                "start": "2027-11-18",
-                                "end": "2027-12-08",
-                                "closure": true
-                      },
-                      {
-                                "id": 10,
-                                "name": "Montaż wyposażenia",
-                                "category": "Most w km 72+209",
-                                "start": "2027-12-08",
-                                "end": "2028-01-05",
-                                "closure": false
-                      },
-                      {
-                                "id": 11,
-                                "name": "Roboty porządkowe",
-                                "category": "Most w km 72+209",
-                                "start": "2028-01-05",
-                                "end": "2028-02-03",
-                                "closure": false
-                      },
-                      {
-                                "id": 12,
-                                "name": "Roboty przygotowawcze...",
-                                "category": "Mur oporowy w km 73+090",
-                                "start": "2027-01-01",
-                                "end": "2027-05-30",
-                                "closure": false
-                      },
-                      {
-                                "id": 13,
-                                "name": "Demontaż sieci obcych",
-                                "category": "Mur oporowy w km 73+090",
-                                "start": "2027-03-04",
-                                "end": "2027-03-11",
-                                "closure": false
-                      },
-                      {
-                                "id": 14,
-                                "name": "Rozbiórka nawierzchni torowej",
-                                "category": "Mur oporowy w km 73+090",
-                                "start": "2027-06-09",
-                                "end": "2027-06-16",
-                                "closure": true
-                      },
-                      {
-                                "id": 15,
-                                "name": "Roboty ziemne (odkopanie)",
-                                "category": "Mur oporowy w km 73+090",
-                                "start": "2027-06-16",
-                                "end": "2027-06-30",
-                                "closure": true
-                      },
-                      {
-                                "id": 16,
-                                "name": "Rozbiórka korony muru",
-                                "category": "Mur oporowy w km 73+090",
-                                "start": "2027-06-30",
-                                "end": "2027-07-20",
-                                "closure": true
-                      },
-                      {
-                                "id": 17,
-                                "name": "Oczyszczenie powierzchni",
-                                "category": "Mur oporowy w km 73+090",
-                                "start": "2027-07-20",
-                                "end": "2027-08-10",
-                                "closure": true
-                      },
-                      {
-                                "id": 18,
-                                "name": "Wykonanie płaszczy/nadbudowy",
-                                "category": "Mur oporowy w km 73+090",
-                                "start": "2027-08-10",
-                                "end": "2027-10-06",
-                                "closure": true
-                      },
-                      {
-                                "id": 19,
-                                "name": "Wykonanie izolacji i odwo.",
-                                "category": "Mur oporowy w km 73+090",
-                                "start": "2027-10-06",
-                                "end": "2027-10-27",
-                                "closure": true
-                      },
-                      {
-                                "id": 20,
-                                "name": "Roboty ziemne (zasypanie)",
-                                "category": "Mur oporowy w km 73+090",
-                                "start": "2027-10-27",
-                                "end": "2027-11-18",
-                                "closure": true
-                      },
-                      {
-                                "id": 21,
-                                "name": "Montaż naw. oraz sieci",
-                                "category": "Mur oporowy w km 73+090",
-                                "start": "2027-11-18",
-                                "end": "2027-12-01",
-                                "closure": true
-                      },
-                      {
-                                "id": 22,
-                                "name": "Montaż wyposażenia",
-                                "category": "Mur oporowy w km 73+090",
-                                "start": "2027-12-01",
-                                "end": "2027-12-22",
-                                "closure": false
-                      },
-                      {
-                                "id": 23,
-                                "name": "Roboty porządkowe",
-                                "category": "Mur oporowy w km 73+090",
-                                "start": "2027-12-22",
-                                "end": "2028-01-05",
-                                "closure": false
-                      },
-                      {
-                                "id": 24,
-                                "name": "Roboty przygotowawcze, w tym prefabrykacja konstrukcji stalowych",
-                                "category": "Most nad Wartą w km 73+303",
-                                "start": "2027-01-01",
-                                "end": "2027-06-30",
-                                "closure": false,
-                                "comment": "skonsuktowane z WKS, pół roku na prefbrykację wystarczy"
-                      },
-                      {
-                                "id": 25,
-                                "name": "Rozbiórka nawierzchni torowej",
-                                "category": "Most nad Wartą w km 73+303",
-                                "start": "2027-07-02",
-                                "end": "2027-07-09",
-                                "closure": true
-                      },
-                      {
-                                "id": 26,
-                                "name": "Demontaż przęseł stalowych",
-                                "category": "Most nad Wartą w km 73+303",
-                                "start": "2027-07-09",
-                                "end": "2027-08-05",
-                                "closure": true
-                      },
-                      {
-                                "id": 27,
-                                "name": "Rozbiórka podpór mostu",
-                                "category": "Most nad Wartą w km 73+303",
-                                "start": "2027-08-05",
-                                "end": "2027-08-19",
-                                "closure": true
-                      },
-                      {
-                                "id": 28,
-                                "name": "Wykonanie posadowienia",
-                                "category": "Most nad Wartą w km 73+303",
-                                "start": "2027-08-19",
-                                "end": "2027-09-16",
-                                "closure": true
-                      },
-                      {
-                                "id": 29,
-                                "name": "Wykonanie oczepów palowych",
-                                "category": "Most nad Wartą w km 73+303",
-                                "start": "2027-09-16",
-                                "end": "2027-10-15",
-                                "closure": true
-                      },
-                      {
-                                "id": 30,
-                                "name": "Wykonanie korpusów podpór",
-                                "category": "Most nad Wartą w km 73+303",
-                                "start": "2027-10-15",
-                                "end": "2027-11-27",
-                                "closure": true
-                      },
-                      {
-                                "id": 31,
-                                "name": "Montaż przęseł mostu",
-                                "category": "Most nad Wartą w km 73+303",
-                                "start": "2027-11-27",
-                                "end": "2028-01-25",
-                                "closure": true
-                      },
-                      {
-                                "id": 32,
-                                "name": "Montaż naw. oraz sieci obcych",
-                                "category": "Most nad Wartą w km 73+303",
-                                "start": "2028-01-24",
-                                "end": "2028-02-06",
-                                "closure": true
-                      },
-                      {
-                                "id": 33,
-                                "name": "Montaż wyposażenia mostu",
-                                "category": "Most nad Wartą w km 73+303",
-                                "start": "2028-01-24",
-                                "end": "2028-02-21",
-                                "closure": false
-                      },
-                      {
-                                "id": 34,
-                                "name": "Wykonanie podpór kładki",
-                                "category": "Most nad Wartą w km 73+303",
-                                "start": "2027-08-19",
-                                "end": "2027-11-23",
-                                "closure": false
-                      },
-                      {
-                                "id": 35,
-                                "name": "Wykonanie przęseł kładki",
-                                "category": "Most nad Wartą w km 73+303",
-                                "start": "2027-08-19",
-                                "end": "2028-01-25",
-                                "closure": false
-                      },
-                      {
-                                "id": 36,
-                                "name": "Montaż wyposażenia kładki",
-                                "category": "Most nad Wartą w km 73+303",
-                                "start": "2028-01-25",
-                                "end": "2028-02-22",
-                                "closure": false
-                      },
-                      {
-                                "id": 37,
-                                "name": "Roboty porządkowe",
-                                "category": "Most nad Wartą w km 73+303",
-                                "start": "2028-02-22",
-                                "end": "2028-03-21",
-                                "closure": false
-                      }
+                      { "id": 1, "name": "Projekt i pozwolenie na budowę", "category": "Budynek", "start": "2027-01-01", "end": "2027-03-15", "closure": false, "comment": "" },
+                      { "id": 2, "name": "Wytyczenie działki i niwelacja", "category": "Budynek", "start": "2027-03-15", "end": "2027-04-05", "closure": false, "comment": "" },
+                      { "id": 3, "name": "Roboty ziemne i wykop", "category": "Budynek", "start": "2027-04-05", "end": "2027-04-26", "closure": false, "comment": "" },
+                      { "id": 4, "name": "Fundamenty i ławy betonowe", "category": "Budynek", "start": "2027-04-26", "end": "2027-06-07", "closure": false, "comment": "" },
+                      { "id": 5, "name": "Izolacja przeciwwilgociowa", "category": "Budynek", "start": "2027-06-07", "end": "2027-06-21", "closure": false, "comment": "" },
+                      { "id": 6, "name": "Murowanie ścian parteru", "category": "Budynek", "start": "2027-06-21", "end": "2027-08-16", "closure": false, "comment": "" },
+                      { "id": 7, "name": "Strop nad parterem", "category": "Budynek", "start": "2027-08-16", "end": "2027-09-13", "closure": false, "comment": "" },
+                      { "id": 8, "name": "Murowanie ścian piętra", "category": "Budynek", "start": "2027-09-13", "end": "2027-10-18", "closure": false, "comment": "" },
+                      { "id": 9, "name": "Więźba dachowa i pokrycie", "category": "Budynek", "start": "2027-10-18", "end": "2027-11-22", "closure": false, "comment": "" },
+                      { "id": 10, "name": "Okna i drzwi zewnętrzne", "category": "Budynek", "start": "2027-11-22", "end": "2027-12-13", "closure": false, "comment": "" },
+                      { "id": 11, "name": "Odbiór stanu surowego", "category": "Budynek", "start": "2027-12-13", "end": "2027-12-31", "closure": false, "comment": "" },
+                      { "id": 12, "name": "Projekt instalacji wewnętrznych", "category": "Instalacje", "start": "2027-01-01", "end": "2027-04-01", "closure": false, "comment": "" },
+                      { "id": 13, "name": "Przyłącze wodociągowe", "category": "Instalacje", "start": "2027-04-01", "end": "2027-04-15", "closure": false, "comment": "" },
+                      { "id": 14, "name": "Przyłącze kanalizacyjne", "category": "Instalacje", "start": "2027-04-15", "end": "2027-05-06", "closure": false, "comment": "" },
+                      { "id": 15, "name": "Instalacja elektryczna — rury", "category": "Instalacje", "start": "2027-12-13", "end": "2028-01-10", "closure": false, "comment": "" },
+                      { "id": 16, "name": "Instalacja CO i podłogówka", "category": "Instalacje", "start": "2028-01-10", "end": "2028-02-07", "closure": false, "comment": "" },
+                      { "id": 17, "name": "Montaż kotła i wentylacji", "category": "Instalacje", "start": "2028-02-07", "end": "2028-03-07", "closure": false, "comment": "" },
+                      { "id": 18, "name": "Badania i odbiory instalacji", "category": "Instalacje", "start": "2028-03-07", "end": "2028-03-21", "closure": false, "comment": "" },
+                      { "id": 19, "name": "Tynki wewnętrzne", "category": "Wykończenie", "start": "2028-01-10", "end": "2028-02-21", "closure": false, "comment": "" },
+                      { "id": 20, "name": "Wylewki i jastrychy", "category": "Wykończenie", "start": "2028-02-21", "end": "2028-03-14", "closure": false, "comment": "" },
+                      { "id": 21, "name": "Ocieplenie i elewacja", "category": "Wykończenie", "start": "2028-03-14", "end": "2028-05-09", "closure": false, "comment": "" },
+                      { "id": 22, "name": "Malowanie wnętrz", "category": "Wykończenie", "start": "2028-05-09", "end": "2028-06-06", "closure": false, "comment": "" },
+                      { "id": 23, "name": "Układanie podłóg i płytek", "category": "Wykończenie", "start": "2028-06-06", "end": "2028-07-04", "closure": false, "comment": "" },
+                      { "id": 24, "name": "Montaż drzwi wewnętrznych", "category": "Wykończenie", "start": "2028-07-04", "end": "2028-07-25", "closure": false, "comment": "" },
+                      { "id": 25, "name": "Łazienki i biały montaż", "category": "Wykończenie", "start": "2028-07-25", "end": "2028-08-22", "closure": false, "comment": "" },
+                      { "id": 26, "name": "Kuchnia — zabudowa i sprzęt", "category": "Wykończenie", "start": "2028-08-22", "end": "2028-09-12", "closure": false, "comment": "" },
+                      { "id": 27, "name": "Projekt zagospodarowania terenu", "category": "Otoczenie", "start": "2027-06-01", "end": "2027-08-01", "closure": false, "comment": "" },
+                      { "id": 28, "name": "Ogrodzenie działki", "category": "Otoczenie", "start": "2028-04-01", "end": "2028-05-01", "closure": false, "comment": "" },
+                      { "id": 29, "name": "Garaż i podjazd", "category": "Otoczenie", "start": "2028-05-01", "end": "2028-06-12", "closure": false, "comment": "" },
+                      { "id": 30, "name": "Taras i chodniki", "category": "Otoczenie", "start": "2028-06-12", "end": "2028-07-10", "closure": false, "comment": "" },
+                      { "id": 31, "name": "Nasadzenia i trawnik", "category": "Otoczenie", "start": "2028-07-10", "end": "2028-08-07", "closure": false, "comment": "" },
+                      { "id": 32, "name": "Odbiór końcowy i pozwolenie", "category": "Otoczenie", "start": "2028-09-12", "end": "2028-10-03", "closure": false, "comment": "" }
             ];
         /* HARMO1-DATA-END */
 
