@@ -1213,6 +1213,7 @@ DANE:\n${inputText}`;
                 }
                 const startX = e.clientX;
                 const capturedPPD = PIXELS_PER_DAY;
+                const capturedShiftTarget = shiftTarget;
                 const snapshotTasks = tasks;
                 let currentDays = 0;
                 let hasMoved = false;
@@ -1232,7 +1233,9 @@ DANE:\n${inputText}`;
                         pushHistory(snapshotTasks);
                         setTasks(prev => prev.map(t =>
                             capturedSelectedIds.has(t.id)
-                                ? { ...t, start: addDays(t.start, currentDays), end: addDays(t.end, currentDays) }
+                                ? { ...t,
+                                    start: capturedShiftTarget !== 'end'   ? addDays(t.start, currentDays) : t.start,
+                                    end:   capturedShiftTarget !== 'start' ? addDays(t.end,   currentDays) : t.end }
                                 : t
                         ));
                     } else if (!hasMoved) {
@@ -1388,7 +1391,7 @@ DANE:\n${inputText}`;
                                     <div className="flex flex-col items-center bg-white border border-amber-300 rounded-lg px-2.5 py-0.5 shrink-0 shadow-sm">
                                         <span className="text-[9px] font-bold text-amber-500 uppercase tracking-wide leading-tight">Od</span>
                                         <span className="text-sm font-bold text-amber-900 tabular-nums leading-tight">
-                                            {fmtPL(addDays(selectedDateRange.minStart, sliderOffset + barDragOffset))}
+                                            {fmtPL(addDays(selectedDateRange.minStart, sliderOffset + (shiftTarget !== 'end' ? barDragOffset : 0)))}
                                         </span>
                                     </div>
                                 )}
@@ -1468,7 +1471,7 @@ DANE:\n${inputText}`;
                                     <div className="flex flex-col items-center bg-white border border-amber-300 rounded-lg px-2.5 py-0.5 shrink-0 shadow-sm">
                                         <span className="text-[9px] font-bold text-amber-500 uppercase tracking-wide leading-tight">Do</span>
                                         <span className="text-sm font-bold text-amber-900 tabular-nums leading-tight">
-                                            {fmtPL(addDays(selectedDateRange.maxEnd, sliderOffset + barDragOffset))}
+                                            {fmtPL(addDays(selectedDateRange.maxEnd, sliderOffset + (shiftTarget !== 'start' ? barDragOffset : 0)))}
                                         </span>
                                     </div>
                                 )}
@@ -1650,6 +1653,12 @@ DANE:\n${inputText}`;
                                             const catHex = task.closure ? null : getCatColor(task.category);
                                             let barClass = task.closure ? "bg-striped-red border-red-700" : "border-slate-500";
                                             const barStyle = task.closure ? {} : { background: catHex, borderColor: catHex };
+                                            const dragBarPx = isSelectedBar && barDragOffset !== 0 ? barDragOffset * PIXELS_PER_DAY : 0;
+                                            const dragBarExtra = dragBarPx !== 0 ? (
+                                                shiftTarget === 'both'  ? { transform: `translateX(${dragBarPx}px)`, transition: 'none' } :
+                                                shiftTarget === 'start' ? { left: `${barLeft + dragBarPx}px`, width: `${Math.max(barWidth - dragBarPx, 1)}px`, transition: 'none' } :
+                                                                          { width: `${Math.max(barWidth + dragBarPx, 1)}px`, transition: 'none' }
+                                            ) : {};
 
                                             return (
                                                 <div key={`bar-${task.id}`}
@@ -1661,7 +1670,7 @@ DANE:\n${inputText}`;
                                                         onMouseDown={(e) => handleBarDragMouseDown(e, task)}
                                                         onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); handleEditTask(task); }}
                                                         className={`absolute rounded-md border shadow-sm z-10 flex items-center px-2 text-white overflow-hidden transition-[box-shadow,filter] hover:brightness-110 hover:shadow-md ${barClass} ${isSelectedBar ? 'ring-2 ring-offset-1 ring-amber-400 cursor-grab active:cursor-grabbing' : 'cursor-pointer'}`}
-                                                        style={{ left: `${barLeft}px`, top: `${barTop}px`, width: `${barWidth}px`, height: `${barH}px`, fontSize: `${fontSize}px`, ...barStyle, ...(isSelectedBar && barDragOffset !== 0 ? { transform: `translateX(${barDragOffset * PIXELS_PER_DAY}px)`, transition: 'none' } : {}) }}
+                                                        style={{ left: `${barLeft}px`, top: `${barTop}px`, width: `${barWidth}px`, height: `${barH}px`, fontSize: `${fontSize}px`, ...barStyle, ...dragBarExtra }}
                                                         title={`${task.name}\nStart: ${task.start}\nKoniec: ${task.end}\nZamknięcie: ${task.closure ? 'TAK' : 'NIE'}\n\n[LPM] zaznacz / przeciągnij  [PPM] edytuj`}
                                                     >
                                                         {showBarDates && barWidth >= 20 && (
@@ -1674,7 +1683,9 @@ DANE:\n${inputText}`;
                                         const dateFontSize = Math.max(8, fontSize - 2);
                                         const isEditStart = editingBarDate && editingBarDate.id === task.id && editingBarDate.field === 'start';
                                         const isEditEnd   = editingBarDate && editingBarDate.id === task.id && editingBarDate.field === 'end';
-                                        const dragPx = isSelectedBar && barDragOffset !== 0 ? barDragOffset * PIXELS_PER_DAY : 0;
+                                        const dragPxAll = isSelectedBar && barDragOffset !== 0 ? barDragOffset * PIXELS_PER_DAY : 0;
+                                        const dragPxStart = shiftTarget !== 'end'   ? dragPxAll : 0;
+                                        const dragPxEnd   = shiftTarget !== 'start' ? dragPxAll : 0;
                                         return (
                                             <>
                                                 {/* Start — before bar, top-aligned */}
@@ -1689,7 +1700,7 @@ DANE:\n${inputText}`;
                                                         />
                                                     ) : (
                                                         <div className={`absolute z-20 ${isSelectedBar ? 'cursor-pointer hover:text-brand-600 hover:underline' : 'pointer-events-none'}`}
-                                                            style={{ right: `calc(100% - ${barLeft + dragPx}px)`, top: `${barTop}px`, fontSize: dateFontSize, color: isSelectedBar ? '#0284c7' : '#475569', whiteSpace: 'nowrap', lineHeight: '1.2', paddingRight: '3px', textAlign: 'right' }}
+                                                            style={{ right: `calc(100% - ${barLeft + dragPxStart}px)`, top: `${barTop}px`, fontSize: dateFontSize, color: isSelectedBar ? '#0284c7' : '#475569', whiteSpace: 'nowrap', lineHeight: '1.2', paddingRight: '3px', textAlign: 'right' }}
                                                             onClick={e => { if (!isSelectedBar) return; e.stopPropagation(); setEditingBarDate({id: task.id, field: 'start'}); }}
                                                             title={isSelectedBar ? 'Kliknij aby edytować datę startu' : ''}
                                                         >{fmtPL(task.start)}</div>
@@ -1707,7 +1718,7 @@ DANE:\n${inputText}`;
                                                         />
                                                     ) : (
                                                         <div className={`absolute z-20 ${isSelectedBar ? 'cursor-pointer hover:text-brand-600 hover:underline' : 'pointer-events-none'}`}
-                                                            style={{ left: `${barLeft + barWidth + dragPx + 4}px`, top: `${barTop}px`, fontSize: dateFontSize, color: isSelectedBar ? '#0284c7' : '#475569', whiteSpace: 'nowrap', lineHeight: '1.2' }}
+                                                            style={{ left: `${barLeft + barWidth + dragPxEnd + 4}px`, top: `${barTop}px`, fontSize: dateFontSize, color: isSelectedBar ? '#0284c7' : '#475569', whiteSpace: 'nowrap', lineHeight: '1.2' }}
                                                             onClick={e => { if (!isSelectedBar) return; e.stopPropagation(); setEditingBarDate({id: task.id, field: 'end'}); }}
                                                             title={isSelectedBar ? 'Kliknij aby edytować datę końca' : ''}
                                                         >{fmtPL(task.end)}</div>
@@ -1717,7 +1728,7 @@ DANE:\n${inputText}`;
                                         );
                                     })()}
                                                     <div className="absolute z-20 pointer-events-none"
-                                                        style={{ left: `${barLeft + barWidth + (isSelectedBar && barDragOffset !== 0 ? barDragOffset * PIXELS_PER_DAY : 0) + 4}px`, top: `${barTop + (showBarDates ? Math.max(8, fontSize - 2) + 2 : 0)}px`, height: `${barH}px`, fontSize: `${fontSize}px`, whiteSpace: 'nowrap', color: '#334155', fontWeight: 500, display: 'flex', alignItems: 'center', lineHeight: 1.1, overflow: 'hidden' }}
+                                                        style={{ left: `${barLeft + barWidth + (shiftTarget !== 'start' ? dragBarPx : 0) + 4}px`, top: `${barTop + (showBarDates ? Math.max(8, fontSize - 2) + 2 : 0)}px`, height: `${barH}px`, fontSize: `${fontSize}px`, whiteSpace: 'nowrap', color: '#334155', fontWeight: 500, display: 'flex', alignItems: 'center', lineHeight: 1.1, overflow: 'hidden' }}
                                                     >
                                                         <span>{task.name}</span>
                                                         {showComments && task.comment && (
