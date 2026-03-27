@@ -675,6 +675,7 @@ DANE:\n${inputText}`;
             const [syncRows, setSyncRows] = useState(true);
             const [showBarDates, setShowBarDates] = useState(false);
             const [showComments, setShowComments] = useState(false);
+            const [projectDesc, setProjectDesc] = useState('Edytuj opis harmonogramu.');
             const [selectedIds, setSelectedIds] = useState(new Set());
             const [leftPanelWidth, setLeftPanelWidth] = useState(460);
             const leftPanelRef = useRef(null);
@@ -983,7 +984,7 @@ DANE:\n${inputText}`;
                 <title>Harmonogram</title>
                 <style>body{font-family:sans-serif;margin:8mm}h2{margin:0 0 8px}@media print{@page{size:landscape;margin:8mm}body{margin:0}}</style>
                 </head><body>
-                <h2>Harmonogram — Modernizacja linii kolejowej nr 367</h2>
+                <h2>Harmonogram — ${projectDesc}</h2>
                 ${legendHtml}
                 <div id="pw" style="overflow:visible">
                 <div style="width:${totalW}px;position:relative">
@@ -1028,7 +1029,9 @@ DANE:\n${inputText}`;
                     let y = MARGIN;
                     doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(30,41,59);
                     doc.text('Harmonogram - ' + new Date().toISOString().slice(0,10), MARGIN, y + 4);
-                    y += TITLE_H;
+                    doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(100,116,139);
+                    doc.text(pl(projectDesc), MARGIN, y + 9);
+                    y += TITLE_H + 4;
                     // Legend
                     doc.setFontSize(6.5); doc.setFont('helvetica','normal');
                     let lx = MARGIN;
@@ -1075,7 +1078,14 @@ DANE:\n${inputText}`;
                         }
                         const fs = Math.max(5, Math.min(7, rowHmm * 2));
                         doc.setFontSize(fs); doc.setTextColor(51,65,85); doc.setFont('helvetica','normal');
-                        doc.text(pl(task.name), bx+bw+1.2, by+bh*0.72);
+                        const nameX = bx + bw + 1.2;
+                        const nameMaxW = MARGIN + contentW - nameX - 0.5;
+                        if (nameMaxW > 3) {
+                            let nameStr = pl(task.name);
+                            while (nameStr.length > 1 && doc.getTextWidth(nameStr + '...') > nameMaxW) nameStr = nameStr.slice(0,-1);
+                            if (nameStr.length < pl(task.name).length) nameStr += '...';
+                            doc.text(nameStr, nameX, by+bh*0.72);
+                        }
                         doc.setDrawColor(226,232,240); doc.setLineWidth(0.05);
                         doc.line(MARGIN, y+(i+1)*rowHmm, MARGIN+contentW, y+(i+1)*rowHmm);
                     });
@@ -1243,7 +1253,7 @@ DANE:\n${inputText}`;
                         <div className="max-w-full mx-auto flex items-center gap-2 flex-wrap">
                             <div className="mr-2">
                                 <h1 className="text-xl font-bold leading-tight">Harmonogram</h1>
-                                <p className="text-slate-400 text-xs">Modernizacja linii kolejowej nr 367</p>
+                                <input type="text" value={projectDesc} onChange={e => setProjectDesc(e.target.value)} className="text-slate-400 text-xs bg-transparent border-b border-transparent hover:border-slate-600 focus:border-slate-500 focus:outline-none w-72 leading-tight" placeholder="Opis harmonogramu..." />
                             </div>
                             {/* Scale control */}
                             <div className="flex items-center gap-2 bg-slate-800 rounded-lg px-3 py-1.5 flex-wrap">
