@@ -1013,6 +1013,7 @@ DANE:\n${inputText}`;
                 });
                 loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js').then(() => {
                     const { jsPDF } = window.jspdf;
+                    const pl = s => (s||'').replace(/[^\x00-\x7E]/g, c => ({'ą':'a','ć':'c','ę':'e','ł':'l','ń':'n','ó':'o','ś':'s','ź':'z','ż':'z','Ą':'A','Ć':'C','Ę':'E','Ł':'L','Ń':'N','Ó':'O','Ś':'S','Ź':'Z','Ż':'Z'}[c]||c));
                     const MARGIN = 8, PAGE_W = 297, PAGE_H = 210, TITLE_H = 7, LEGEND_H = 7, TIMELINE_H = 7;
                     const availW = PAGE_W - MARGIN * 2;
                     const availH = PAGE_H - MARGIN * 2 - TITLE_H - LEGEND_H - TIMELINE_H;
@@ -1026,7 +1027,7 @@ DANE:\n${inputText}`;
                     // Title
                     let y = MARGIN;
                     doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(30,41,59);
-                    doc.text('Harmonogram — ' + new Date().toISOString().slice(0,10), MARGIN, y + 4);
+                    doc.text('Harmonogram - ' + new Date().toISOString().slice(0,10), MARGIN, y + 4);
                     y += TITLE_H;
                     // Legend
                     doc.setFontSize(6.5); doc.setFont('helvetica','normal');
@@ -1034,11 +1035,11 @@ DANE:\n${inputText}`;
                     cats.forEach((cat, i) => {
                         const [r,g,b] = hexToRGB(CAT_COLORS[i % CAT_COLORS.length]);
                         doc.setFillColor(r,g,b); doc.rect(lx, y+0.5, 4, 3, 'F');
-                        doc.setTextColor(51,65,85); doc.text(cat, lx+5, y+3);
+                        doc.setTextColor(51,65,85); doc.text(pl(cat), lx+5, y+3);
                         lx += 5 + doc.getTextWidth(cat) + 3;
                     });
                     doc.setFillColor(220,38,38); doc.rect(lx, y+0.5, 4, 3, 'F');
-                    doc.setTextColor(51,65,85); doc.text('Stan B', lx+5, y+3);
+                    doc.setTextColor(51,65,85); doc.text('Stan B', lx+5, y+3); // no diacritics
                     y += LEGEND_H;
                     // Timeline header
                     doc.setFillColor(241,245,249); doc.rect(MARGIN, y, contentW, TIMELINE_H, 'F');
@@ -1047,7 +1048,7 @@ DANE:\n${inputText}`;
                         const x = MARGIN + m.offsetDays * dayMm;
                         doc.setDrawColor(203,213,225); doc.setLineWidth(0.1);
                         doc.line(x, y, x, y + TIMELINE_H + tasks.length * rowHmm);
-                        doc.text(m.label, x+0.5, y+4.5);
+                        doc.text(pl(m.label), x+0.5, y+4.5);
                     });
                     y += TIMELINE_H;
                     // Bars
@@ -1074,7 +1075,7 @@ DANE:\n${inputText}`;
                         }
                         const fs = Math.max(5, Math.min(7, rowHmm * 2));
                         doc.setFontSize(fs); doc.setTextColor(51,65,85); doc.setFont('helvetica','normal');
-                        doc.text(task.name, bx+bw+1.2, by+bh*0.72);
+                        doc.text(pl(task.name), bx+bw+1.2, by+bh*0.72);
                         doc.setDrawColor(226,232,240); doc.setLineWidth(0.05);
                         doc.line(MARGIN, y+(i+1)*rowHmm, MARGIN+contentW, y+(i+1)*rowHmm);
                     });
