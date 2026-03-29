@@ -607,7 +607,7 @@ DANE:\n${inputText}`;
         const App = () => {
             const [tasks, setTasks] = useState(() => {
                 try {
-                    const saved = localStorage.getItem('harmo1_tasks');
+                    const saved = localStorage.getItem('harmo1_tasks_v2');
                     return saved ? JSON.parse(saved) : initialTasks;
                 } catch { return initialTasks; }
             });
@@ -742,7 +742,7 @@ DANE:\n${inputText}`;
             };
 
             useEffect(() => {
-                try { localStorage.setItem('harmo1_tasks', JSON.stringify(tasks)); } catch {}
+                try { localStorage.setItem('harmo1_tasks_v2', JSON.stringify(tasks)); } catch {}
             }, [tasks]);
 
             const handleDragStart = (index) => { dragItem.current = index; };
@@ -1355,7 +1355,7 @@ DANE:\n${inputText}`;
                                 <div className="w-px h-5 bg-slate-600 shrink-0"></div>
                                 <button onClick={() => {
                                     if (window.confirm('Resetuj dane?\n\nZastąpi bieżące zadania przykładowym harmonogramem z kodu.\nDane z localStorage zostaną usunięte.\n\nNie można cofnąć tej operacji.')) {
-                                        localStorage.removeItem('harmo1_tasks');
+                                        localStorage.removeItem('harmo1_tasks_v2');
                                         location.reload();
                                     }
                                 }}
